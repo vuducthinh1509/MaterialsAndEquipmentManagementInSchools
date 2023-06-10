@@ -1,7 +1,9 @@
 package com.javaspringboot.DevicesManagementSystemBackend.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -65,6 +67,12 @@ public class User implements Serializable {
 
   @OneToMany(mappedBy = "user2")
   private Set<WarrantyCard> warrantyCards2;
+
+  @OneToMany(fetch = FetchType.EAGER,mappedBy = "exporter")
+  private Set<OutgoingGoodsNote> outgoingGoodsNotes1;
+
+  @OneToMany(fetch = FetchType.EAGER,mappedBy = "receiver")
+  private Set<OutgoingGoodsNote> outgoingGoodsNotes2;
 
   @JsonIgnore
   private String[] authorities;

@@ -1,24 +1,38 @@
-package com.javaspringboot.DevicesManagementSystemBackend.payload.request;
+package com.javaspringboot.DevicesManagementSystemBackend.payload.request.auth;
 
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 import java.util.Set;
 
+@Data
 public class SignupRequest {
+    @NotBlank
+    @NotEmpty
     private String username;
-
+    @NotBlank
+    @NotEmpty
     private String email;
     
     private Set<String> role;
+    @NotBlank
+    @NotEmpty
     private String password;
-
+    @NotBlank
+    @NotEmpty
     private String fullname;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
 
     private Date birthDate;
-
+    @NotBlank
+    @NotEmpty
     private String phone;
-
     private Date joinDate;
-
+    @NotBlank
+    @NotEmpty
     private String tenVien;
 
     private String tenPhong;

@@ -24,7 +24,7 @@ public class WarrantyCard {
 
     private String price;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="nguoixuat_id", nullable=false,referencedColumnName = "id")
     private User user2;
 

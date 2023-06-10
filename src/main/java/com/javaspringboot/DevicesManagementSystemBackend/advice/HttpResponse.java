@@ -24,6 +24,9 @@ public class HttpResponse {
         this.message = message;
     }
 
+    public HttpResponse(int value, HttpStatus badRequest, String s, String format, String serial) {
+    }
+
     public Date getTimeStamp() {
         return timeStamp;
     }

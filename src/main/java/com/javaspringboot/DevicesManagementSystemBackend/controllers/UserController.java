@@ -1,4 +1,4 @@
-package com.javaspringboot.DevicesManagementSystemBackend.controllers.User;
+package com.javaspringboot.DevicesManagementSystemBackend.controllers;
 
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
@@ -18,6 +18,7 @@ import static org.springframework.http.HttpStatus.OK;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/user")
+@PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
 public class UserController extends ExceptionHandling {
 
     @Autowired
@@ -29,7 +30,7 @@ public class UserController extends ExceptionHandling {
                                         @RequestBody User user) throws UserNotFoundException {
         Optional<User> _user = userRepository.findById(id);
         if(!_user.isPresent()){
-            throw new UserNotFoundException("User have not founded");
+            throw new UserNotFoundException("No user found with id: " + id );
         } else {
             User updatedUser = _user.get();
             updatedUser.setBirthDate(user.getBirthDate());
@@ -39,7 +40,7 @@ public class UserController extends ExceptionHandling {
             updatedUser.setTenPhong(user.getTenPhong());
             updatedUser.setTenBan(user.getTenPhong());
             userRepository.save(updatedUser);
-            return ResponseEntity.ok(new MessageResponse("Cập nhật thành công"));
+            return ResponseEntity.ok(new MessageResponse("Update succesfully"));
         }
     }
 
@@ -49,7 +50,7 @@ public class UserController extends ExceptionHandling {
     public ResponseEntity<?> deleteUser(@PathVariable("id")Long id) throws UserNotFoundException{
         Optional<User> _user = userRepository.findById(id);
         if(!_user.isPresent()){
-            throw new UserNotFoundException("User have not founded");
+            throw new UserNotFoundException("No user found with username: " + _user.get().getUsername());
         } else {
             userRepository.deleteById(id);
             return ResponseEntity.ok(new MessageResponse("Delete succesfully"));
@@ -70,7 +71,7 @@ public class UserController extends ExceptionHandling {
         if(_user!=null){
             return ResponseEntity.ok(_user);
         } else {
-            throw new UserNotFoundException("User have not founded");
+            throw new UserNotFoundException("No account found with username: " + username);
         }
     }
 }

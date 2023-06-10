@@ -8,8 +8,8 @@ import com.javaspringboot.DevicesManagementSystemBackend.models.ERole;
 import com.javaspringboot.DevicesManagementSystemBackend.models.RefreshToken;
 import com.javaspringboot.DevicesManagementSystemBackend.models.Role;
 import com.javaspringboot.DevicesManagementSystemBackend.models.User;
-import com.javaspringboot.DevicesManagementSystemBackend.payload.request.LoginRequest;
-import com.javaspringboot.DevicesManagementSystemBackend.payload.request.SignupRequest;
+import com.javaspringboot.DevicesManagementSystemBackend.payload.request.auth.LoginRequest;
+import com.javaspringboot.DevicesManagementSystemBackend.payload.request.auth.SignupRequest;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.RoleRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
@@ -86,7 +86,7 @@ public class AuthController extends ExceptionHandling {
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws UsernameExistException, EmailExistException {
     if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-      throw new UsernameExistException("Username is already taken 1!");
+      throw new UsernameExistException("Username is already taken!");
     }
     if(userRepository.existsByEmail(signUpRequest.getEmail())){
       throw new EmailExistException("Email is already taken!");
