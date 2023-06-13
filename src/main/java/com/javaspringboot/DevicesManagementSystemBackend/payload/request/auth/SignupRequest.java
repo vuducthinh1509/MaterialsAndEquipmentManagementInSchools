@@ -19,20 +19,16 @@ public class SignupRequest {
     
     private Set<String> role;
     @NotBlank
-    @NotEmpty
     private String password;
     @NotBlank
-    @NotEmpty
     private String fullname;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
 
     private Date birthDate;
-    @NotBlank
     @NotEmpty
     private String phone;
     private Date joinDate;
     @NotBlank
-    @NotEmpty
     private String tenVien;
 
     private String tenPhong;

@@ -1,4 +1,4 @@
-package com.javaspringboot.DevicesManagementSystemBackend.models;
+package com.javaspringboot.DevicesManagementSystemBackend.model;
 
 import javax.persistence.*;
 import java.time.Instant;

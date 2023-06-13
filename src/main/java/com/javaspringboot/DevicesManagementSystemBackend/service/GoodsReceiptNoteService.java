@@ -1,5 +1,6 @@
 package com.javaspringboot.DevicesManagementSystemBackend.service;
 
+import com.javaspringboot.DevicesManagementSystemBackend.repository.CategoryRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.GoodsReceiptNoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

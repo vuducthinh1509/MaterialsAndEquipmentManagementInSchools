@@ -1,4 +1,6 @@
-package com.javaspringboot.DevicesManagementSystemBackend.models;
+package com.javaspringboot.DevicesManagementSystemBackend.model;
+
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
 
 import javax.persistence.*;
 

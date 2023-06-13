@@ -1,7 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.security.services;
 
 import com.javaspringboot.DevicesManagementSystemBackend.exception.token.TokenRefreshException;
-import com.javaspringboot.DevicesManagementSystemBackend.models.RefreshToken;
+import com.javaspringboot.DevicesManagementSystemBackend.model.RefreshToken;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.RefreshTokenRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

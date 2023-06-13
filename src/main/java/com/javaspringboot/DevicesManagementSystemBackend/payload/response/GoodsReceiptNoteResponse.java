@@ -1,6 +1,6 @@
 package com.javaspringboot.DevicesManagementSystemBackend.payload.response;
 
-import com.javaspringboot.DevicesManagementSystemBackend.models.Device;
+import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
 import lombok.*;
 
 import java.util.Date;

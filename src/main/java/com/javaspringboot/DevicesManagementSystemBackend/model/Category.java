@@ -1,16 +1,12 @@
-package com.javaspringboot.DevicesManagementSystemBackend.models;
+package com.javaspringboot.DevicesManagementSystemBackend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Entity

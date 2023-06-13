@@ -1,6 +1,6 @@
 package com.javaspringboot.DevicesManagementSystemBackend.security.services;
 
-import com.javaspringboot.DevicesManagementSystemBackend.models.User;
+import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

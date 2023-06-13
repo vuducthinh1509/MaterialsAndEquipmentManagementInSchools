@@ -1,11 +1,9 @@
-package com.javaspringboot.DevicesManagementSystemBackend.controllers;
+package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
-import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.CategoryNotFoundException;
-import com.javaspringboot.DevicesManagementSystemBackend.models.Category;
-import com.javaspringboot.DevicesManagementSystemBackend.payload.request.category.AddCategoryRequest;
+import com.javaspringboot.DevicesManagementSystemBackend.model.Category;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 ;
-import javax.management.RuntimeErrorException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -31,7 +28,7 @@ public class CategoryController extends ExceptionHandling {
     @Autowired
     private CategoryRepository categoryRepository;
     @PostMapping("/add")
-    public ResponseEntity<?> addCategory(@Valid @RequestBody AddCategoryRequest addCategoryRequest) {
+    public ResponseEntity<?> addCategory(@Valid @RequestBody CategoryDTO addCategoryRequest) {
         if(categoryRepository.existsByDescription(addCategoryRequest.getDescription())){
             return ResponseEntity.badRequest().body(new HttpResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,
                     "","Category is already taken!"));

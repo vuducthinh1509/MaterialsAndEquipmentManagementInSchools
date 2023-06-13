@@ -1,17 +1,16 @@
-package com.javaspringboot.DevicesManagementSystemBackend.models;
+package com.javaspringboot.DevicesManagementSystemBackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.EqualsAndHashCode;
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusMaintenance;
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusWarranty;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.util.Set;
 
 @Entity
@@ -41,12 +40,9 @@ public class Device {
 
     private String status;
 
-    private String warrantyStatus;
+    private EStatusWarranty warrantyStatus;
 
-    private String maintenanceStatus;
-
-    @OneToMany(mappedBy = "device")
-    private Set<WarrantyCard> warrantyCards;
+    private EStatusMaintenance maintenanceStatus;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -58,9 +54,13 @@ public class Device {
     private GoodsReceiptNote goodsReceiptNote;
 
     @ManyToOne
-    @JoinColumn(name="ongoingGoodsNote_id")
+    @JoinColumn(name="outgoingGoodsNote_id")
     @JsonBackReference
     private OutgoingGoodsNote outgoingGoodsNote;
+
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "device")
+    @JsonBackReference
+    private Set<WarrantyCard> warrantyCards;
 
     @PreRemove
     private void preRemove() {

@@ -1,4 +1,4 @@
-package com.javaspringboot.DevicesManagementSystemBackend.controllers;
+package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
@@ -7,9 +7,9 @@ import com.javaspringboot.DevicesManagementSystemBackend.dto.OutgoingGoodsNoteDT
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.DeviceNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
-import com.javaspringboot.DevicesManagementSystemBackend.models.Device;
-import com.javaspringboot.DevicesManagementSystemBackend.models.OutgoingGoodsNote;
-import com.javaspringboot.DevicesManagementSystemBackend.models.User;
+import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
+import com.javaspringboot.DevicesManagementSystemBackend.model.OutgoingGoodsNote;
+import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.OutgoingGoodsNoteResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.DeviceRepository;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -55,10 +56,10 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
 
 
     @PostMapping("/add")
-    public ResponseEntity<?> createPhieuXuat(@Valid @RequestBody OutgoingGoodsNoteDTO outgoingGoodsNoteDTO) throws UserNotFoundException, DeviceNotFoundException {
-        Optional<User> exporter = userRepository.findById(outgoingGoodsNoteDTO.getExporterId());
-        if(!exporter.isPresent()){
-            throw new UserNotFoundException("No exporter found with id " + outgoingGoodsNoteDTO.getExporterId());
+    public ResponseEntity<?> createPhieuXuat(@Valid @RequestBody OutgoingGoodsNoteDTO outgoingGoodsNoteDTO, Authentication authentication) throws UserNotFoundException, DeviceNotFoundException {
+        User exporter = userRepository.findUserByUsername(authentication.getName());
+        if(exporter==null){
+            return new ResponseEntity<>(new HttpResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR,"","Action failed! Try again"),HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Optional<User> receiver = userRepository.findById(outgoingGoodsNoteDTO.getReceiverId());
         if(!receiver.isPresent()){
@@ -69,7 +70,7 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
         if(strSerial.isEmpty()){
             return ResponseEntity.badRequest().body(new HttpResponse(HttpStatus.BAD_REQUEST.value(),HttpStatus.BAD_REQUEST,"","devices can not be empty"));
         }
-        OutgoingGoodsNote outgoingGoodsNote = new OutgoingGoodsNote(exporter.get(),receiver.get());
+        OutgoingGoodsNote outgoingGoodsNote = new OutgoingGoodsNote(exporter,receiver.get());
         for(String serial : strSerial){
             Optional<Device> device = deviceRepository.findDeviceBySerial(serial);
             if(!device.isPresent()){

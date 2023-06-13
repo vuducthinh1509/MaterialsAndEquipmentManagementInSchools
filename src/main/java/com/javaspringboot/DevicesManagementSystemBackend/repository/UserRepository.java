@@ -1,6 +1,6 @@
 package com.javaspringboot.DevicesManagementSystemBackend.repository;
 
-import com.javaspringboot.DevicesManagementSystemBackend.models.User;
+import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

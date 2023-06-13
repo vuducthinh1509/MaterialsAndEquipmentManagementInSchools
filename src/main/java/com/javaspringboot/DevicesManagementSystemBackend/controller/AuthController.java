@@ -1,13 +1,13 @@
-package com.javaspringboot.DevicesManagementSystemBackend.controllers;
+package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.EmailExistException;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UsernameExistException;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.token.TokenRefreshException;
-import com.javaspringboot.DevicesManagementSystemBackend.models.ERole;
-import com.javaspringboot.DevicesManagementSystemBackend.models.RefreshToken;
-import com.javaspringboot.DevicesManagementSystemBackend.models.Role;
-import com.javaspringboot.DevicesManagementSystemBackend.models.User;
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
+import com.javaspringboot.DevicesManagementSystemBackend.model.RefreshToken;
+import com.javaspringboot.DevicesManagementSystemBackend.model.Role;
+import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.auth.LoginRequest;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.auth.SignupRequest;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
@@ -70,9 +70,9 @@ public class AuthController extends ExceptionHandling {
 
     ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
-    List<String> roles = userDetails.getAuthorities().stream()
-        .map(item -> item.getAuthority())
-        .collect(Collectors.toList());
+//    List<String> roles = userDetails.getAuthorities().stream()
+//        .map(item -> item.getAuthority())
+//        .collect(Collectors.toList());
     RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
     
     ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());

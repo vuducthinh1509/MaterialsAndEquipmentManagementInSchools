@@ -2,10 +2,7 @@ package com.javaspringboot.DevicesManagementSystemBackend.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
-import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.DeviceNotFoundException;
-import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.EmailExistException;
-import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
-import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UsernameExistException;
+import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -19,6 +16,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ConstraintViolation;
@@ -49,69 +47,79 @@ public class ExceptionHandling implements ErrorController {
 
     private static final String DEVICE_NOT_FOUND = "No found device with serial %s";
 
+    private static final String WARRANTY_CARD_NOT_FOUND = "No warranty card with id %s";
+
+    private static final String USER_NOT_FOUND = "No found user with username %s";
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<HttpResponse> badCredentialsException(BadCredentialsException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         return createHttpResponse(BAD_REQUEST, INCORRECT_CREDENTIALS);
     }
 
     @ExceptionHandler(EmailExistException.class)
     public ResponseEntity<HttpResponse> emailExistException(EmailExistException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         return createHttpResponse(BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler(UsernameExistException.class)
     public ResponseEntity<HttpResponse> usernameExistException(UsernameExistException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         return createHttpResponse(BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<HttpResponse> userNotFoundException(UserNotFoundException exception) {
-        LOGGER.error(exception.getMessage());
-        return createHttpResponse(NOT_FOUND, exception.getMessage());
+        LOGGER.warn(exception.getMessage());
+        return createHttpResponse(NOT_FOUND, String.format(USER_NOT_FOUND,exception.getMessage()));
     }
 
     @ExceptionHandler(DeviceNotFoundException.class)
     public ResponseEntity<HttpResponse> deviceNotFoundException(DeviceNotFoundException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         return createHttpResponse(NOT_FOUND, String.format(DEVICE_NOT_FOUND,exception.getMessage()));
+    }
+
+    @ExceptionHandler(WarrantyCardNotFoundException.class)
+    public ResponseEntity<HttpResponse> warrantyCardNotFoundException(WarrantyCardNotFoundException exception) {
+        LOGGER.warn(exception.getMessage());
+        return createHttpResponse(NOT_FOUND, String.format(WARRANTY_CARD_NOT_FOUND,exception.getMessage()));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<HttpResponse> entityNotFoundException(EntityNotFoundException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         return createHttpResponse(NOT_FOUND, EMPTY_RESULT);
     }
 
     @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
     public ResponseEntity<HttpResponse> notFoundException(ChangeSetPersister.NotFoundException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         return createHttpResponse(NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<HttpResponse> methodArgumentNotValidException(MethodArgumentNotValidException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         return createHttpResponse(BAD_REQUEST,exception.getFieldError().getField()+" "+ exception.getFieldError().getDefaultMessage());
     }
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<HttpResponse> noSuchElementException(NoSuchElementException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         return createHttpResponse(NOT_FOUND,exception.getMessage());
     }
 
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public ResponseEntity<HttpResponse> emptyResultDataAccessException(EmptyResultDataAccessException exception) {
-        LOGGER.error(exception.getMessage());
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
+        LOGGER.warn(exception.getMessage());
+        return createHttpResponse(BAD_REQUEST, exception.getLocalizedMessage());
     }
 
     @ExceptionHandler(InvalidFormatException.class)
     public ResponseEntity<HttpResponse> invalidFormatException(InvalidFormatException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         return createHttpResponse(BAD_REQUEST, String.format(INVALID_FORMAT,exception.getMessage()));
 
 //        return createHttpResponse(BAD_REQUEST, "Date format is incorrect (yyyy-MM-dd)");
@@ -119,19 +127,26 @@ public class ExceptionHandling implements ErrorController {
 
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public ResponseEntity<HttpResponse> sQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         return createHttpResponse(BAD_REQUEST,exception.getMessage());
     }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<HttpResponse> illegalArgumentException(IllegalArgumentException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         return createHttpResponse(BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<HttpResponse> methodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
+        LOGGER.warn(exception.getMessage());
         HttpMethod supportedMethod = Objects.requireNonNull(exception.getSupportedHttpMethods()).iterator().next();
         return createHttpResponse(METHOD_NOT_ALLOWED, String.format(METHOD_IS_NOT_ALLOWED, supportedMethod));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<HttpResponse> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
+        LOGGER.warn(exception.getMessage());
+        return createHttpResponse(BAD_REQUEST, exception.getCause().getMessage(),exception.getMessage());
     }
 
 //    @ExceptionHandler(Exception.class)
@@ -141,7 +156,7 @@ public class ExceptionHandling implements ErrorController {
 //    }
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException exception) {
-        LOGGER.error(exception.getMessage());
+        LOGGER.warn(exception.getMessage());
         List<HttpResponse> errors = new ArrayList<>();
         Stream<ConstraintViolation<?>> violationStream = exception.getConstraintViolations().stream();
         violationStream.forEach(violation -> {
@@ -153,5 +168,10 @@ public class ExceptionHandling implements ErrorController {
     private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus httpStatus, String message) {
         return new ResponseEntity<>(new HttpResponse(httpStatus.value(), httpStatus,
                 httpStatus.getReasonPhrase().toUpperCase(), message), httpStatus);
+    }
+
+    private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus httpStatus,String reason, String message) {
+        return new ResponseEntity<>(new HttpResponse(httpStatus.value(), httpStatus,
+                reason.toUpperCase(), message), httpStatus);
     }
 }

@@ -1,7 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.security.jwt;
 
 
-import com.javaspringboot.DevicesManagementSystemBackend.models.User;
+import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.security.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;

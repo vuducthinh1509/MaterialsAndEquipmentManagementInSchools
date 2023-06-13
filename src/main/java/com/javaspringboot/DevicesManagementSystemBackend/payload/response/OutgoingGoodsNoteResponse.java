@@ -1,9 +1,9 @@
 package com.javaspringboot.DevicesManagementSystemBackend.payload.response;
 
-import com.javaspringboot.DevicesManagementSystemBackend.models.Device;
+import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
 import lombok.*;
 
-import javax.validation.constraints.Min;
+import java.util.Date;
 import java.util.Set;
 
 @Data
@@ -16,5 +16,7 @@ public class OutgoingGoodsNoteResponse {
     private String exporter;
 
     private String receiver;
+
+    private Date exportDate;
     private Set<Device> devices;
 }

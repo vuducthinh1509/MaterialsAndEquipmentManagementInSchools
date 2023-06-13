@@ -1,9 +1,7 @@
-package com.javaspringboot.DevicesManagementSystemBackend.models;
+package com.javaspringboot.DevicesManagementSystemBackend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -62,10 +60,10 @@ public class User implements Serializable {
 
   private String tenBan;
 
-  @OneToMany(mappedBy = "user1")
+  @OneToMany(fetch = FetchType.EAGER,mappedBy = "exporter")
   private Set<WarrantyCard> warrantyCards1;
 
-  @OneToMany(mappedBy = "user2")
+  @OneToMany(fetch = FetchType.EAGER,mappedBy = "receiver")
   private Set<WarrantyCard> warrantyCards2;
 
   @OneToMany(fetch = FetchType.EAGER,mappedBy = "exporter")
@@ -74,8 +72,8 @@ public class User implements Serializable {
   @OneToMany(fetch = FetchType.EAGER,mappedBy = "receiver")
   private Set<OutgoingGoodsNote> outgoingGoodsNotes2;
 
-  @JsonIgnore
-  private String[] authorities;
+//  @JsonIgnore
+//  private String authorities;
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "user_roles", 
@@ -204,11 +202,11 @@ public class User implements Serializable {
     this.roles = roles;
   }
 
-  public String[] getAuthorities() {
-    return authorities;
-  }
-
-  public void setAuthorities(String[] authorities) {
-    this.authorities = authorities;
-  }
+//  public String getAuthorities() {
+//    return authorities;
+//  }
+//
+//  public void setAuthorities(String authorities) {
+//    this.authorities = authorities;
+//  }
 }

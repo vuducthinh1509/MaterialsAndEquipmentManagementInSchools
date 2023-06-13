@@ -1,12 +1,8 @@
 package com.javaspringboot.DevicesManagementSystemBackend.dto;
 
-import com.javaspringboot.DevicesManagementSystemBackend.models.Device;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.util.Date;
 import java.util.Set;
 
 @Data

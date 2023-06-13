@@ -1,8 +1,8 @@
-package com.javaspringboot.DevicesManagementSystemBackend.controllers;
+package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
-import com.javaspringboot.DevicesManagementSystemBackend.models.Category;
-import com.javaspringboot.DevicesManagementSystemBackend.models.Device;
+import com.javaspringboot.DevicesManagementSystemBackend.model.Category;
+import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.UpdateDeviceRequest;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.CategoryRepository;

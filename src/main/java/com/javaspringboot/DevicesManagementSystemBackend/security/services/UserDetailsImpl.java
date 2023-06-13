@@ -1,6 +1,6 @@
 package com.javaspringboot.DevicesManagementSystemBackend.security.services;
 
-import com.javaspringboot.DevicesManagementSystemBackend.models.User;
+import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -79,4 +79,9 @@ public class UserDetailsImpl implements UserDetails {
 //    UserDetailsImpl user = (UserDetailsImpl) o;
 //    return Objects.equals(id, user.id);
 //  }
+
+
+  public void setUser(User user) {
+    this.user = user;
+  }
 }

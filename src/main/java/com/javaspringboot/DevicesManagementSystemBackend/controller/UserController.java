@@ -1,8 +1,8 @@
-package com.javaspringboot.DevicesManagementSystemBackend.controllers;
+package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
-import com.javaspringboot.DevicesManagementSystemBackend.models.User;
+import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ public class UserController extends ExceptionHandling {
             updatedUser.setPhone(user.getPhone());
             updatedUser.setTenVien(user.getTenVien());
             updatedUser.setTenPhong(user.getTenPhong());
-            updatedUser.setTenBan(user.getTenPhong());
+            updatedUser.setTenBan(user.getTenBan());
             userRepository.save(updatedUser);
             return ResponseEntity.ok(new MessageResponse("Update succesfully"));
         }

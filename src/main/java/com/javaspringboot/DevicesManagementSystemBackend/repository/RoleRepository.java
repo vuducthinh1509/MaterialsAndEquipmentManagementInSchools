@@ -1,7 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.repository;
 
-import com.javaspringboot.DevicesManagementSystemBackend.models.ERole;
-import com.javaspringboot.DevicesManagementSystemBackend.models.Role;
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
+import com.javaspringboot.DevicesManagementSystemBackend.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
