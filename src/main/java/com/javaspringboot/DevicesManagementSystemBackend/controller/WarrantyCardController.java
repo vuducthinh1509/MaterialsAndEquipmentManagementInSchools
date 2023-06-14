@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RequestMapping("/api/warrantycard")
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:3000",maxAge = 3600,allowCredentials = "true")
 @RestController
 public class WarrantyCardController extends ExceptionHandling {
 
@@ -53,7 +53,7 @@ public class WarrantyCardController extends ExceptionHandling {
     private DeviceRepository deviceRepository;
 
     @PostMapping("/require")
-    public ResponseEntity<?> claimWarrantyCard(@Valid @RequestBody WarrantyCardRequest warrantyCardRequest,Authentication authentication) throws UserNotFoundException,DeviceNotFoundException {
+    public ResponseEntity<?> require(@Valid @RequestBody WarrantyCardRequest warrantyCardRequest,Authentication authentication) throws UserNotFoundException,DeviceNotFoundException {
         User receiver = userRepository.findUserByUsername(authentication.getName());
         if(receiver==null){
             throw new UserNotFoundException(authentication.getName());
@@ -68,13 +68,13 @@ public class WarrantyCardController extends ExceptionHandling {
         }
         WarrantyCard warrantyCard = new WarrantyCard(warrantyCardRequest.getNote(),receiver,device);
         warrantyCardRepository.save(warrantyCard);
-        return new ResponseEntity(new MessageResponse("Warranty claim successful"), HttpStatus.OK);
+        return new ResponseEntity(new MessageResponse("Claim successful"), HttpStatus.CREATED);
     }
 
 
     @GetMapping("/confirm")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    public ResponseEntity<?> confirmWarrantyCard(@Valid @RequestParam Long id, Authentication authentication) throws WarrantyCardNotFoundException {
+    public ResponseEntity<?> confirm(@Valid @RequestParam Long id, Authentication authentication) throws WarrantyCardNotFoundException {
         Optional<WarrantyCard> warrantyCard = warrantyCardRepository.findById(id);
         if(!warrantyCard.isPresent()){
             throw new WarrantyCardNotFoundException(id.toString());
@@ -95,7 +95,7 @@ public class WarrantyCardController extends ExceptionHandling {
 
     @GetMapping("/deny")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    public ResponseEntity<?> deniedWarrantyCard(@Valid @RequestParam Long id, Authentication authentication) throws WarrantyCardNotFoundException {
+    public ResponseEntity<?> deny(@Valid @RequestParam Long id, Authentication authentication) throws WarrantyCardNotFoundException {
 
         Optional<WarrantyCard> warrantyCard = warrantyCardRepository.findById(id);
         if(!warrantyCard.isPresent()){
@@ -110,27 +110,31 @@ public class WarrantyCardController extends ExceptionHandling {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<WarrantyCard>> getAllWarrantyCard(){
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<List<WarrantyCard>> getAll(){
         List<WarrantyCard> warrantyCardList = warrantyCardRepository.findAll();
         return new ResponseEntity(modelMapperService.mapList(warrantyCardList,customMapper),HttpStatus.OK);
     }
 
     // Tìm theo id
     @GetMapping("")
-    public ResponseEntity<?> getWarrantyCardById(@Valid @RequestParam Long id){
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> getById(@Valid @RequestParam Long id){
         Optional<WarrantyCard> warrantyCard = warrantyCardRepository.findById(id);
         return new ResponseEntity<>(modelMapperService.mapObject(warrantyCard.get(),customMapper),HttpStatus.OK);
     }
 
     // Xóa theo id
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteWarrantyCard(@Valid @RequestParam Long id) throws WarrantyCardNotFoundException{
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> deleteById(@Valid @RequestParam Long id) throws WarrantyCardNotFoundException{
         warrantyCardRepository.deleteById(id);
         return new ResponseEntity(new MessageResponse("Delete succesfully"),HttpStatus.OK);
     }
 
     @GetMapping("/list_by_serial")
-    public ResponseEntity<?> getWarrantyCardBySerialDevice(@Valid @RequestParam String serial) throws DeviceNotFoundException {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> getBySerialDevice(@Valid @RequestParam String serial) throws DeviceNotFoundException {
         Optional<Device> device = deviceRepository.findDeviceBySerial(serial);
         if(!device.isPresent()){
             throw new DeviceNotFoundException(serial);
@@ -140,7 +144,7 @@ public class WarrantyCardController extends ExceptionHandling {
     }
 
     @GetMapping("/list_by_receiver")
-    public ResponseEntity<?> getWarrantyCardByReceiver(@Valid @RequestParam String username) throws UserNotFoundException {
+    public ResponseEntity<?> getByReceiver(@Valid @RequestParam String username) throws UserNotFoundException {
         User user = userRepository.findUserByUsername(username);
         if(user==null){
             throw new UserNotFoundException(username);
@@ -159,7 +163,8 @@ public class WarrantyCardController extends ExceptionHandling {
         return warrantyCardDTO;
     };
 
-    @PostMapping("/transfer")
+    @GetMapping("/transfer")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> transferWarrantyCard(@Valid @RequestParam String price,@RequestParam Long id,Authentication authentication) throws UserNotFoundException {
         User user = userRepository.findUserByUsername(authentication.getName());
         if(user==null){

@@ -11,9 +11,11 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -41,15 +43,22 @@ public class ExceptionHandling implements ErrorController {
 
     private static final String EMPTY_RESULT = "We have a problem";
 
-    private static final String ENTITY_EXIST = "%s already exists";
+    private static final String DEVICE_EXIST = "%s already exists";
+
+    private static final String EMAIL_EXIST = "Email is already taken!";
 
     private static final String INVALID_FORMAT = "Invalid format : %s";
 
     private static final String DEVICE_NOT_FOUND = "No found device with serial %s";
 
+    private static final String CATEGORY_NOT_FOUND = "No found category with id %s";
+
     private static final String WARRANTY_CARD_NOT_FOUND = "No warranty card with id %s";
 
-    private static final String USER_NOT_FOUND = "No found user with username %s";
+    private static final String GOODS_RECEIPT_NOTE_NOT_FOUND = "No goods receipt note with id %s";
+
+    private static final String USER_NOT_FOUND_WITH_USERNAME = "No found user with username %s";
+
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<HttpResponse> badCredentialsException(BadCredentialsException exception) {
@@ -60,31 +69,55 @@ public class ExceptionHandling implements ErrorController {
     @ExceptionHandler(EmailExistException.class)
     public ResponseEntity<HttpResponse> emailExistException(EmailExistException exception) {
         LOGGER.warn(exception.getMessage());
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
+        return createHttpResponse(BAD_REQUEST, EMAIL_EXIST);
     }
 
     @ExceptionHandler(UsernameExistException.class)
     public ResponseEntity<HttpResponse> usernameExistException(UsernameExistException exception) {
         LOGGER.warn(exception.getMessage());
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
+        return createHttpResponse(BAD_REQUEST, exception.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<HttpResponse> missingServletRequestParameterException(MissingServletRequestParameterException exception) {
+        LOGGER.warn(exception.getMessage());
+        return createHttpResponse(BAD_REQUEST, exception.getLocalizedMessage());
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<HttpResponse> userNotFoundException(UserNotFoundException exception) {
         LOGGER.warn(exception.getMessage());
-        return createHttpResponse(NOT_FOUND, String.format(USER_NOT_FOUND,exception.getMessage()));
+        return createHttpResponse(NOT_FOUND, String.format(USER_NOT_FOUND_WITH_USERNAME,exception.getLocalizedMessage()));
+    }
+
+    @ExceptionHandler(DeviceExistException.class)
+    public ResponseEntity<HttpResponse> deviceExistException(DeviceExistException exception) {
+        LOGGER.warn(exception.getMessage());
+        return createHttpResponse(BAD_REQUEST, String.format(DEVICE_EXIST,exception.getMessage()));
     }
 
     @ExceptionHandler(DeviceNotFoundException.class)
     public ResponseEntity<HttpResponse> deviceNotFoundException(DeviceNotFoundException exception) {
         LOGGER.warn(exception.getMessage());
-        return createHttpResponse(NOT_FOUND, String.format(DEVICE_NOT_FOUND,exception.getMessage()));
+        return createHttpResponse(NOT_FOUND, String.format(DEVICE_NOT_FOUND,exception.getLocalizedMessage()));
+    }
+
+    @ExceptionHandler(GoodsReceiptNoteException.class)
+    public ResponseEntity<HttpResponse> deviceNotFoundException(GoodsReceiptNoteException exception) {
+        LOGGER.warn(exception.getMessage());
+        return createHttpResponse(NOT_FOUND, String.format(GOODS_RECEIPT_NOTE_NOT_FOUND,exception.getLocalizedMessage()));
+    }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<HttpResponse> categoryNotFoundException(CategoryNotFoundException exception) {
+        LOGGER.warn(exception.getMessage());
+        return createHttpResponse(NOT_FOUND, String.format(CATEGORY_NOT_FOUND,exception.getLocalizedMessage()));
     }
 
     @ExceptionHandler(WarrantyCardNotFoundException.class)
     public ResponseEntity<HttpResponse> warrantyCardNotFoundException(WarrantyCardNotFoundException exception) {
         LOGGER.warn(exception.getMessage());
-        return createHttpResponse(NOT_FOUND, String.format(WARRANTY_CARD_NOT_FOUND,exception.getMessage()));
+        return createHttpResponse(NOT_FOUND, String.format(WARRANTY_CARD_NOT_FOUND,exception.getLocalizedMessage()));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -96,7 +129,7 @@ public class ExceptionHandling implements ErrorController {
     @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
     public ResponseEntity<HttpResponse> notFoundException(ChangeSetPersister.NotFoundException exception) {
         LOGGER.warn(exception.getMessage());
-        return createHttpResponse(NOT_FOUND, exception.getMessage());
+        return createHttpResponse(NOT_FOUND, exception.getLocalizedMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -108,8 +141,9 @@ public class ExceptionHandling implements ErrorController {
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<HttpResponse> noSuchElementException(NoSuchElementException exception) {
         LOGGER.warn(exception.getMessage());
-        return createHttpResponse(NOT_FOUND,exception.getMessage());
+        return createHttpResponse(NOT_FOUND,exception.getLocalizedMessage());
     }
+
 
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public ResponseEntity<HttpResponse> emptyResultDataAccessException(EmptyResultDataAccessException exception) {
@@ -120,7 +154,7 @@ public class ExceptionHandling implements ErrorController {
     @ExceptionHandler(InvalidFormatException.class)
     public ResponseEntity<HttpResponse> invalidFormatException(InvalidFormatException exception) {
         LOGGER.warn(exception.getMessage());
-        return createHttpResponse(BAD_REQUEST, String.format(INVALID_FORMAT,exception.getMessage()));
+        return createHttpResponse(BAD_REQUEST, String.format(INVALID_FORMAT,exception.getLocalizedMessage()));
 
 //        return createHttpResponse(BAD_REQUEST, "Date format is incorrect (yyyy-MM-dd)");
     }
@@ -128,12 +162,12 @@ public class ExceptionHandling implements ErrorController {
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public ResponseEntity<HttpResponse> sQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException exception) {
         LOGGER.warn(exception.getMessage());
-        return createHttpResponse(BAD_REQUEST,exception.getMessage());
+        return createHttpResponse(BAD_REQUEST,exception.getLocalizedMessage());
     }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<HttpResponse> illegalArgumentException(IllegalArgumentException exception) {
         LOGGER.warn(exception.getMessage());
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
+        return createHttpResponse(BAD_REQUEST, exception.getLocalizedMessage());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -146,14 +180,8 @@ public class ExceptionHandling implements ErrorController {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<HttpResponse> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
         LOGGER.warn(exception.getMessage());
-        return createHttpResponse(BAD_REQUEST, exception.getCause().getMessage(),exception.getMessage());
+        return createHttpResponse(BAD_REQUEST, exception.getCause().getLocalizedMessage(),exception.getLocalizedMessage());
     }
-
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<HttpResponse> internalServerErrorException(Exception exception) {
-//        LOGGER.error(exception.getMessage());
-//        return createHttpResponse(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG);
-//    }
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException exception) {
         LOGGER.warn(exception.getMessage());

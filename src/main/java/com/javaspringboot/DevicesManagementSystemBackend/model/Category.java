@@ -1,7 +1,9 @@
 package com.javaspringboot.DevicesManagementSystemBackend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -16,6 +18,8 @@ import java.util.Set;
         })
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,12 +36,6 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL) // Quan hệ 1-n với đối tượng ở dưới (Person) (1 địa điểm có nhiều người ở)
     @JsonIgnore
     private Set<Device> devices;
-
-    public Category(){}
-
-    public Category(String description){
-        this.description = description;
-    }
 
     public Category(String name, String description){
         this.name=name;

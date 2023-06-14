@@ -10,6 +10,8 @@ import java.util.Set;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class OutgoingGoodsNote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,46 +37,6 @@ public class OutgoingGoodsNote {
         this.exporter=exporter;
         this.receiver = receiver;
         this.exportDate = new Date();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Date getExportDate() {
-        return exportDate;
-    }
-
-    public void setExportDate(Date exportDate) {
-        this.exportDate = exportDate;
-    }
-
-    public User getExporter() {
-        return exporter;
-    }
-
-    public void setExporter(User exporter) {
-        this.exporter = exporter;
-    }
-
-    public User getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(User receiver) {
-        this.receiver = receiver;
-    }
-
-    public Set<Device> getDevices() {
-        return devices;
-    }
-
-    public void setDevices(Set<Device> devices) {
-        this.devices = devices;
     }
 
 

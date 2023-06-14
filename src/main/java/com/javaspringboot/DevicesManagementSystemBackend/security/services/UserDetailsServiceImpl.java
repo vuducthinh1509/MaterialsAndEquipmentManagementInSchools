@@ -1,5 +1,6 @@
 package com.javaspringboot.DevicesManagementSystemBackend.security.services;
 
+import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
 import org.slf4j.Logger;
@@ -27,12 +28,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     User user = userRepository.findUserByUsername(username);
     if (user == null) {
-      LOGGER.error(NO_USER_FOUND_BY_USERNAME + username);
       throw new UsernameNotFoundException(NO_USER_FOUND_BY_USERNAME + username);
     } else {
       userRepository.save(user);
       UserDetailsImpl userDetailsImpl = new UserDetailsImpl(user);
-      LOGGER.info(FOUND_USER_BY_USERNAME + username);
       return userDetailsImpl;
     }
   }

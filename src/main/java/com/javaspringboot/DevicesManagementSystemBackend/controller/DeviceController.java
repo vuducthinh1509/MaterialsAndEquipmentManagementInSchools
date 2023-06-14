@@ -1,6 +1,8 @@
 package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
+import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
+import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.DeviceNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.model.Category;
 import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.UpdateDeviceRequest;
@@ -11,6 +13,7 @@ import com.javaspringboot.DevicesManagementSystemBackend.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+@CrossOrigin(origins = "http://localhost:3000",maxAge = 3600,allowCredentials = "true")
 @RequestMapping("/api/device")
 @RestController
 public class DeviceController extends ExceptionHandling {
@@ -32,29 +36,32 @@ public class DeviceController extends ExceptionHandling {
     private CategoryRepository categoryRepository;
 
     @GetMapping("/list")
-    public ResponseEntity<List<Device>> getAllDevice(){
-        try {
-            List<Device> devices = deviceRepository.findAll();
-            return new ResponseEntity(devices, HttpStatus.OK);
-        } catch (Exception ex){
-            throw new RuntimeException(ex.getMessage());
-        }
+    public ResponseEntity<List<Device>> getAll(){
+        List<Device> devices = deviceRepository.findAll();
+        return new ResponseEntity(devices, HttpStatus.OK);
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getDevicesBySerial(@RequestParam(value = "serial",required = false) String serial,@RequestParam(value = "status",required = false) String status){
-        if(serial==null&&!status.isBlank()){
-            Set<Device> devices = deviceService.findDeviceByStatus(status);
-            return new ResponseEntity(devices, HttpStatus.OK);
-        } else if(!serial.isBlank() && status==null){
-            Optional<Device> device = deviceRepository.findDeviceBySerial(serial);
-            return new ResponseEntity(device.get(), HttpStatus.OK);
+    public ResponseEntity<?> getByType(@RequestParam String type,@RequestParam String data) {
+        if(type.isBlank()){
+            return new ResponseEntity(new MessageResponse("Type is not blank"),HttpStatus.BAD_REQUEST);
+        } else {
+            if(type.equalsIgnoreCase("serial")){
+                Optional<Device> device = deviceRepository.findDeviceBySerial(data);
+                return new ResponseEntity(device.get(), HttpStatus.OK);
+            } else if(type.equalsIgnoreCase("status")){
+                Set<Device> devices = deviceService.findDeviceByStatus(data);
+                return new ResponseEntity(devices, HttpStatus.OK);
+            } else {
+
+                return new ResponseEntity(new HttpResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,"","Type is not exist"),HttpStatus.BAD_REQUEST);
+            }
         }
-        return new ResponseEntity(new MessageResponse("Action failed"),HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateDeviceInfo(@RequestParam Long id,@Valid @RequestBody UpdateDeviceRequest updateDeviceRequest) throws SQLIntegrityConstraintViolationException {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> updateById(@RequestParam Long id,@Valid @RequestBody UpdateDeviceRequest updateDeviceRequest) throws SQLIntegrityConstraintViolationException {
         Optional<Category> category = categoryRepository.findById(updateDeviceRequest.getCategoryId());
         Device device = deviceRepository.findById(id).get();
         device.setName(updateDeviceRequest.getName());

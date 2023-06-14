@@ -2,6 +2,7 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusDevice;
 import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.OutgoingGoodsNoteDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
@@ -29,7 +30,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/phieuxuat")
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:3000",maxAge = 3600,allowCredentials = "true")
 public class OutgoingGoodsNoteController extends ExceptionHandling {
 
     @Autowired
@@ -56,7 +57,7 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
 
 
     @PostMapping("/add")
-    public ResponseEntity<?> createPhieuXuat(@Valid @RequestBody OutgoingGoodsNoteDTO outgoingGoodsNoteDTO, Authentication authentication) throws UserNotFoundException, DeviceNotFoundException {
+    public ResponseEntity<?> create(@Valid @RequestBody OutgoingGoodsNoteDTO outgoingGoodsNoteDTO, Authentication authentication) throws UserNotFoundException, DeviceNotFoundException {
         User exporter = userRepository.findUserByUsername(authentication.getName());
         if(exporter==null){
             return new ResponseEntity<>(new HttpResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR,"","Action failed! Try again"),HttpStatus.INTERNAL_SERVER_ERROR);
@@ -78,7 +79,7 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
             } else {
                 Device _temp = device.get();
                 if(_temp.getOutgoingGoodsNote()==null){
-                    _temp.setStatus("Đã xuất");
+                    _temp.setStatus(EStatusDevice.DA_XUAT);
                     _temp.setOutgoingGoodsNote(outgoingGoodsNote);
                     devices.add(_temp);
                 } else {
@@ -88,13 +89,13 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
             }
         }
         outgoingGoodsNoteRepository.save(outgoingGoodsNote);
-        return new ResponseEntity(new MessageResponse("Add succesfully"), HttpStatus.OK);
+        return new ResponseEntity(new MessageResponse("Add succesfully"),HttpStatus.CREATED);
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteById(@RequestParam Long id){
         outgoingGoodsNoteRepository.deleteById(id);
-        return new ResponseEntity<>(new MessageResponse("Delete succesfully"),HttpStatus.OK);
+        return new ResponseEntity(new MessageResponse("Delete succesfully"),HttpStatus.OK);
     }
 
     @GetMapping("/list")
@@ -102,7 +103,6 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
         List<OutgoingGoodsNote> outgoingGoodsNotes = outgoingGoodsNoteRepository.findAll();
         return new ResponseEntity(modelMapperService.mapList(outgoingGoodsNotes,customMapper),HttpStatus.OK);
     }
-
     @GetMapping()
     public ResponseEntity<?> findById(@RequestParam Long id){
         Optional<OutgoingGoodsNote> outgoingGoodsNote = outgoingGoodsNoteRepository.findById(id);

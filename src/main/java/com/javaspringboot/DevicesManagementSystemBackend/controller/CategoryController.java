@@ -3,6 +3,7 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
+import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.CategoryNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.model.Category;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.CategoryRepository;
@@ -20,7 +21,7 @@ import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.OK;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:3000",maxAge = 3600,allowCredentials = "true")
 @RestController
 @RequestMapping("/api/category")
 @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
@@ -28,42 +29,38 @@ public class CategoryController extends ExceptionHandling {
     @Autowired
     private CategoryRepository categoryRepository;
     @PostMapping("/add")
-    public ResponseEntity<?> addCategory(@Valid @RequestBody CategoryDTO addCategoryRequest) {
+    public ResponseEntity<?> add(@Valid @RequestBody CategoryDTO addCategoryRequest) {
         if(categoryRepository.existsByDescription(addCategoryRequest.getDescription())){
             return ResponseEntity.badRequest().body(new HttpResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,
                     "","Category is already taken!"));
         }
         categoryRepository.save(new Category(addCategoryRequest.getName(),addCategoryRequest.getDescription()));
-        return ResponseEntity.ok(new MessageResponse("Add succesfully"));
+        return new ResponseEntity(new MessageResponse("Add succesfully"),HttpStatus.CREATED);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteCategory(@RequestParam Long id) throws EmptyResultDataAccessException {
-        try{
-            categoryRepository.deleteById(id);
-            return ResponseEntity.ok(new MessageResponse("Delete succesfully"));
-        } catch (Exception e){
-            throw new EmptyResultDataAccessException("Delete failure",1);
-        }
+    public ResponseEntity<?> deleteById(@RequestParam Long id) {
+        categoryRepository.deleteById(id);
+        return ResponseEntity.ok(new MessageResponse("Delete succesfully"));
     }
 
     @GetMapping("")
-    public ResponseEntity<?> findCategoryById(@RequestParam Long id) throws NoSuchElementException{
+    public ResponseEntity<?> findById(@RequestParam Long id){
         Optional<Category> category = categoryRepository.findById(id);
         return new ResponseEntity(category.get(), OK);
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<Category>> getAllCategories() {
+    public ResponseEntity<List<Category>> getAll() {
         List<Category> categories = categoryRepository.findAll();
         return new ResponseEntity<>(categories, OK);
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateCategory(@RequestParam Long id,@Valid @RequestBody CategoryDTO categoryDTO) throws NoSuchElementException {
+    public ResponseEntity<?> updateById(@RequestParam Long id,@Valid @RequestBody CategoryDTO categoryDTO) throws CategoryNotFoundException {
         Optional<Category> category = categoryRepository.findById(id);
         if(!category.isPresent()){
-            throw new NoSuchElementException("No category found with id:" +id);
+            throw new CategoryNotFoundException(id.toString());
         } else {
             Category _category = category.get();
             _category.setName(categoryDTO.getName());

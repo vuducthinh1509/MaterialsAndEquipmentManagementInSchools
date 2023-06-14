@@ -14,8 +14,5 @@ public class GoodsReceiptNoteDTO {
     private String phone;
     @NotBlank
     private String companyName;
-
     private Set<DeviceDTO> devices;
-    @NotBlank
-    private String username;
 }

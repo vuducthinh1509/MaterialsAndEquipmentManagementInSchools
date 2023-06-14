@@ -1,5 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.EmailExistException;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UsernameExistException;
@@ -11,15 +13,22 @@ import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.auth.LoginRequest;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.auth.SignupRequest;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.payload.response.UserResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.RoleRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.security.jwt.JwtUtils;
 import com.javaspringboot.DevicesManagementSystemBackend.security.services.RefreshTokenService;
 import com.javaspringboot.DevicesManagementSystemBackend.security.services.UserDetailsImpl;
+import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,11 +41,17 @@ import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+
+@CrossOrigin(origins = "http://localhost:3000",maxAge = 3600,allowCredentials = "true")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController extends ExceptionHandling {
+
+  private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
   @Autowired
   AuthenticationManager authenticationManager;
 
@@ -55,6 +70,12 @@ public class AuthController extends ExceptionHandling {
   @Autowired
   RefreshTokenService refreshTokenService;
 
+  @Autowired
+  private ModelMapper mapper;
+
+  @Autowired
+  private ModelMapperService mapperService;
+
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
@@ -70,22 +91,20 @@ public class AuthController extends ExceptionHandling {
     RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
     
     ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());
-
     return ResponseEntity.ok()
-              .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-              .header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
-              .body(userDetails.getUser());
+            .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
+            .body(mapperService.mapObject(userDetails.getUser(),customMapper));
   }
 
   @PostMapping("/signup")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws UsernameExistException, EmailExistException {
+  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws InvalidFormatException,UsernameExistException, EmailExistException,HttpMessageNotReadableException {
     if (userRepository.existsByUsername(signUpRequest.getUsername())) {
       throw new UsernameExistException("Username is already taken!");
     }
     if(userRepository.existsByEmail(signUpRequest.getEmail())){
-      throw new EmailExistException("Email is already taken!");
+      throw new EmailExistException("");
     }
-
     User user = new User(signUpRequest.getUsername(),
                          signUpRequest.getEmail(),
                          encoder.encode(signUpRequest.getPassword()), signUpRequest.getFullname(), signUpRequest.getBirthDate(),signUpRequest.getPhone(),signUpRequest.getTenVien(),signUpRequest.getTenPhong(),signUpRequest.getTenBan());
@@ -121,7 +140,6 @@ public class AuthController extends ExceptionHandling {
     if (principle.toString() != "anonymousUser") {
       refreshTokenService.deleteByUserId(((UserDetailsImpl) principle).getId());
     }
-    
     ResponseCookie jwtCookie = jwtUtils.getCleanJwtCookie();
     ResponseCookie jwtRefreshCookie = jwtUtils.getCleanJwtRefreshCookie();
 
@@ -141,7 +159,6 @@ public class AuthController extends ExceptionHandling {
           .map(RefreshToken::getUser)
           .map(user -> {
             ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(user);
-            
             return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body(new MessageResponse("Token is refreshed successfully!"));
@@ -149,7 +166,14 @@ public class AuthController extends ExceptionHandling {
           .orElseThrow(() -> new TokenRefreshException(refreshToken,
               "Refresh token is not in database!"));
     }
-    
     return ResponseEntity.badRequest().body(new MessageResponse("Refresh Token is empty!"));
   }
+
+  public CustomMapper<User, UserResponse> customMapper = user -> {
+    UserResponse userResponse = mapper.map(user,UserResponse.class);
+    Set<Role> setRoles = user.getRoles();
+    List<ERole> listRoles =  setRoles.stream().map(role -> role.getName()).collect(Collectors.toList());
+    userResponse.setRoles(listRoles);
+    return userResponse;
+  };
 }

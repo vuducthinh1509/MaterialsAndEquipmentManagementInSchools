@@ -3,9 +3,12 @@ package com.javaspringboot.DevicesManagementSystemBackend.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusDevice;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusMaintenance;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusWarranty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -20,6 +23,8 @@ import java.util.Set;
         })
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Device {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +43,7 @@ public class Device {
     @Min(value = 0L, message = "must be positive")
     private Long maintenanceTime;
 
-    private String status;
+    private EStatusDevice status;
 
     private EStatusWarranty warrantyStatus;
 
@@ -65,15 +70,11 @@ public class Device {
     @PreRemove
     private void preRemove() {
         outgoingGoodsNote = null;
-        status="Trong kho";
-    }
-
-    public Device(){
-
+        status=EStatusDevice.TRONG_KHO;
     }
 
     public Device(String name,String serial,Integer price,Long warrantyTime,Long maintenanceTime){
-        this.status = "Trong kho";
+        this.status = EStatusDevice.TRONG_KHO;
         this.name = name;
         this.serial = serial;
         this.price = price;
