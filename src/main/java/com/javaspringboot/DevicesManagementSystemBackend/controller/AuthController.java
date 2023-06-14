@@ -34,14 +34,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-//@CrossOrigin(origins = "http://localhost:8081", maxAge = 3600, allowCredentials="true")
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController extends ExceptionHandling {
   @Autowired
   AuthenticationManager authenticationManager;
-
 
   @Autowired
   UserRepository userRepository;
@@ -70,9 +67,6 @@ public class AuthController extends ExceptionHandling {
 
     ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
-//    List<String> roles = userDetails.getAuthorities().stream()
-//        .map(item -> item.getAuthority())
-//        .collect(Collectors.toList());
     RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
     
     ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());

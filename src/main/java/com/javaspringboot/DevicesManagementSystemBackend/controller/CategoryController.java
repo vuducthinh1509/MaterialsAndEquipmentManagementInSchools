@@ -37,8 +37,8 @@ public class CategoryController extends ExceptionHandling {
         return ResponseEntity.ok(new MessageResponse("Add succesfully"));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id) throws EmptyResultDataAccessException {
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteCategory(@RequestParam Long id) throws EmptyResultDataAccessException {
         try{
             categoryRepository.deleteById(id);
             return ResponseEntity.ok(new MessageResponse("Delete succesfully"));
@@ -59,8 +59,8 @@ public class CategoryController extends ExceptionHandling {
         return new ResponseEntity<>(categories, OK);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable Long id,@Valid @RequestBody CategoryDTO categoryDTO) throws NoSuchElementException {
+    @PutMapping("/update")
+    public ResponseEntity<?> updateCategory(@RequestParam Long id,@Valid @RequestBody CategoryDTO categoryDTO) throws NoSuchElementException {
         Optional<Category> category = categoryRepository.findById(id);
         if(!category.isPresent()){
             throw new NoSuchElementException("No category found with id:" +id);

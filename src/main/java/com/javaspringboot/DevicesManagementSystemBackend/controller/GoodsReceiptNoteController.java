@@ -46,7 +46,6 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
     @Autowired
     private UserRepository userRepository;
 
-
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
@@ -102,8 +101,8 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
         return ResponseEntity.ok(new MessageResponse("Delete successfully"));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updatePhieuNhap(@PathVariable("id") Long id, @Valid @RequestBody UpdateGoodsReceiptNoteRequest updateGoodsReceiptNoteRequest) throws HttpMessageNotReadableException {
+    @PutMapping("/update")
+    public ResponseEntity<?> updatePhieuNhap(@RequestParam(value = "id") Long id, @Valid @RequestBody UpdateGoodsReceiptNoteRequest updateGoodsReceiptNoteRequest) throws HttpMessageNotReadableException {
         Optional<GoodsReceiptNote> _goodsReceiptNote = goodsReceiptNoteRepository.findById(id);
         if(!_goodsReceiptNote.isPresent()){
             return ResponseEntity.badRequest().body(new HttpResponse(HttpStatus.BAD_REQUEST.value(),HttpStatus.BAD_REQUEST,"","No goods receipt note found with id: "+ id));

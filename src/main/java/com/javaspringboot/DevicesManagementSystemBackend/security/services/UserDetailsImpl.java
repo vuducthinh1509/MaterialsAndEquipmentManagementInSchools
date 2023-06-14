@@ -41,15 +41,6 @@ public class UserDetailsImpl implements UserDetails {
   public String getUsername() {
     return this.user.getUsername();
   }
-//  public static UserDetailsImpl build(User user) {
-//    String[] authorities = user.getRoles().stream()
-//            .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-//            .collect(Collectors.toList());
-//
-//    user.setAuthorities(authorities);
-//
-//    return new UserDetailsImpl(user);
-//  }
   @Override
   public boolean isAccountNonExpired() {
     return true;
@@ -70,18 +61,5 @@ public class UserDetailsImpl implements UserDetails {
     return true;
   }
 
-//  @Override
-//  public boolean equals(Object o) {
-//    if (this == o)
-//      return true;
-//    if (o == null || getClass() != o.getClass())
-//      return false;
-//    UserDetailsImpl user = (UserDetailsImpl) o;
-//    return Objects.equals(id, user.id);
-//  }
-
-
-  public void setUser(User user) {
-    this.user = user;
-  }
+  public void setUser(User user) {this.user = user;}
 }

@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
-  @Value("${bezkoder.app.jwtRefreshExpirationMs}")
+  @Value("${app.jwtRefreshExpirationMs}")
   private Long refreshTokenDurationMs;
 
   @Autowired
@@ -30,7 +30,6 @@ public class RefreshTokenService {
 
   public RefreshToken createRefreshToken(Long userId) {
     RefreshToken refreshToken = new RefreshToken();
-
     refreshToken.setUser(userRepository.findById(userId).get());
     refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
     refreshToken.setToken(UUID.randomUUID().toString());
