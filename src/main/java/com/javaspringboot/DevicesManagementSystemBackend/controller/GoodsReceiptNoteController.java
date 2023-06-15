@@ -147,7 +147,7 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
         }
     }
 
-    @GetMapping("/list_by_userid")
+    @GetMapping("/listbyuserid")
     public ResponseEntity<List<GoodsReceiptNote>> getByUserId(@RequestParam(value = "userid") Long id){
         try {
             List<GoodsReceiptNote> list = goodsReceiptNoteRepository.findByUserId(id);
@@ -157,7 +157,7 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
         }
     }
 
-    @GetMapping("/list_by_current_user")
+    @GetMapping("/listbycurrentuser")
     public ResponseEntity<List<GoodsReceiptNote>> getByCurrentUser(Authentication authentication) throws UserNotFoundException {
         String username = authentication.getName();
         User user = userRepository.findUserByUsername(username);

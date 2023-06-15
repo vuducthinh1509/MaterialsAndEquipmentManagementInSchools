@@ -132,7 +132,7 @@ public class WarrantyCardController extends ExceptionHandling {
         return new ResponseEntity(new MessageResponse("Delete succesfully"),HttpStatus.OK);
     }
 
-    @GetMapping("/list_by_serial")
+    @GetMapping("/listbyserialdevice")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> getBySerialDevice(@Valid @RequestParam String serial) throws DeviceNotFoundException {
         Optional<Device> device = deviceRepository.findDeviceBySerial(serial);
@@ -143,7 +143,7 @@ public class WarrantyCardController extends ExceptionHandling {
         return new ResponseEntity<>(modelMapperService.mapList(warrantyCardList,customMapper),HttpStatus.OK);
     }
 
-    @GetMapping("/list_by_receiver")
+    @GetMapping("/listbyreceiver")
     public ResponseEntity<?> getByReceiver(@Valid @RequestParam String username) throws UserNotFoundException {
         User user = userRepository.findUserByUsername(username);
         if(user==null){

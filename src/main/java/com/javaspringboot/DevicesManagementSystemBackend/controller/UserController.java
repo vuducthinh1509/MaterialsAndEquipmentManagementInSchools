@@ -16,12 +16,14 @@ import com.javaspringboot.DevicesManagementSystemBackend.repository.UserReposito
 import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -87,7 +89,7 @@ public class UserController extends ExceptionHandling {
     public ResponseEntity<?> findByUsername(@RequestParam String username) throws UserNotFoundException{
         User _user = userRepository.findUserByUsername(username);
         if(_user!=null){
-            return ResponseEntity.ok(_user);
+            return ResponseEntity.ok(mapperService.mapObject(_user,customMapper));
         } else {
             throw new UserNotFoundException(username);
         }

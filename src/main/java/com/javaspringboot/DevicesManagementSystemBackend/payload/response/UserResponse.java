@@ -1,18 +1,15 @@
 package com.javaspringboot.DevicesManagementSystemBackend.payload.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Setter
@@ -26,11 +23,12 @@ public class UserResponse {
 
     private String fullname;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date birthDate;
 
     private String phone;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date joinDate;
 
     private String tenVien;

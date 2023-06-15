@@ -5,6 +5,7 @@ import com.javaspringboot.DevicesManagementSystemBackend.enumm.EConfirmStatus;
 import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
 import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -20,6 +21,7 @@ public class WarrantyCardDTO {
     private EConfirmStatus confirmStatus;
 
     // ngày bàn giao
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date handoverDate;
 
     private String price;

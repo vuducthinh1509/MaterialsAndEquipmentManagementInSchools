@@ -70,7 +70,7 @@ public class Device {
     @PreRemove
     private void preRemove() {
         outgoingGoodsNote = null;
-        status=EStatusDevice.TRONG_KHO;
+        status = EStatusDevice.TRONG_KHO;
     }
 
     public Device(String name,String serial,Integer price,Long warrantyTime,Long maintenanceTime){

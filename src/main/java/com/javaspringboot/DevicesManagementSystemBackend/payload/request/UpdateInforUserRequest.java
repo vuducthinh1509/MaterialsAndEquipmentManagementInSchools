@@ -1,5 +1,6 @@
 package com.javaspringboot.DevicesManagementSystemBackend.payload.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +23,7 @@ public class UpdateInforUserRequest {
 
     @NotBlank
     private String fullname;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthDate;
     @NotEmpty
     private String phone;
