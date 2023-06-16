@@ -33,6 +33,9 @@ import java.util.Arrays;
     // jsr250Enabled = true,
     prePostEnabled = true)
 public class WebSecurityConfig {
+
+  String[] forgotPasswordList = new String[]{"/api/resetPassword","/api/changePassword","/api/savePassword"};
+
   @Autowired
   UserDetailsServiceImpl userDetailsService;
 
@@ -71,6 +74,7 @@ public class WebSecurityConfig {
         .authorizeRequests()
             .antMatchers("/api/auth/**").permitAll()
             .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+            .antMatchers(forgotPasswordList).permitAll()
             .antMatchers("/api-docs/**").permitAll()
             .antMatchers("/swagger-ui/**").permitAll()
         .anyRequest().authenticated();
