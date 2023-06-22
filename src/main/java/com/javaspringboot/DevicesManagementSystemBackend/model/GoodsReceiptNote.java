@@ -7,6 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -19,13 +20,10 @@ public class GoodsReceiptNote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotBlank
-    @NotEmpty
     private String fullname;
     @NotBlank
-    @NotEmpty
     private String phone;
     @NotBlank
-    @NotEmpty
     private String companyName;
 
     private Date date;
@@ -36,7 +34,7 @@ public class GoodsReceiptNote {
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "goodsReceiptNote",cascade = CascadeType.ALL)
     @JsonManagedReference
-    private Set<Device> devices;
+    private List<Device> devices;
     public GoodsReceiptNote(String fullname, String phone, String companyName){
         this.fullname = fullname;
         this.phone = phone;

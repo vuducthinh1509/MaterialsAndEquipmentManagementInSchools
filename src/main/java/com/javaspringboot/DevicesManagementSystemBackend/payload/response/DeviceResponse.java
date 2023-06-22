@@ -1,5 +1,6 @@
 package com.javaspringboot.DevicesManagementSystemBackend.payload.response;
 
+import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusDevice;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusMaintenance;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusWarranty;
@@ -20,5 +21,5 @@ public class DeviceResponse {
 
     private EStatusMaintenance maintenanceStatus;
 
-    private String category;
+    private CategoryDTO category;
 }

@@ -14,7 +14,6 @@ import java.util.Set;
 @Setter
 public class OutgoingGoodsNoteDTO {
 
-    @Min(value = 0L,message = "must be positive")
     private String receiver;
     private Set<String> devices;
 }

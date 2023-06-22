@@ -5,6 +5,7 @@ import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -19,5 +20,5 @@ public class OutgoingGoodsNoteResponse {
     private String receiver;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date exportDate;
-    private Set<Device> devices;
+    private List<DeviceResponse> devices;
 }

@@ -43,10 +43,11 @@ public class Device {
     @Min(value = 0L, message = "must be positive")
     private Long maintenanceTime;
 
+    @Enumerated(EnumType.STRING)
     private EStatusDevice status;
-
+    @Enumerated(EnumType.STRING)
     private EStatusWarranty warrantyStatus;
-
+    @Enumerated(EnumType.STRING)
     private EStatusMaintenance maintenanceStatus;
 
     @ManyToOne

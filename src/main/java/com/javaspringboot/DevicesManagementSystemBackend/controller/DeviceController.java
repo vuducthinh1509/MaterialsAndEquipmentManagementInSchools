@@ -2,20 +2,22 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusDevice;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.DeviceNotFoundException;
-import com.javaspringboot.DevicesManagementSystemBackend.model.Category;
-import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
-import com.javaspringboot.DevicesManagementSystemBackend.model.Role;
-import com.javaspringboot.DevicesManagementSystemBackend.model.User;
+import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
+import com.javaspringboot.DevicesManagementSystemBackend.model.*;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.UpdateDeviceRequest;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.DeviceResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.UserResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.CategoryRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.DeviceRepository;
+import com.javaspringboot.DevicesManagementSystemBackend.repository.OutgoingGoodsNoteRepository;
+import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
+import com.javaspringboot.DevicesManagementSystemBackend.service.CustomMapperService;
 import com.javaspringboot.DevicesManagementSystemBackend.service.DeviceService;
 import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
 import org.modelmapper.ModelMapper;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -47,11 +50,17 @@ public class DeviceController extends ExceptionHandling {
     private DeviceRepository deviceRepository;
 
     @Autowired
+    private CustomMapperService customMapperService;
+    @Autowired
     private DeviceService deviceService;
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private OutgoingGoodsNoteRepository outgoingGoodsNoteRepository;
+
     @GetMapping("/list")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Device>> getAll(){
         List<Device> devices = deviceRepository.findAll();
         return new ResponseEntity(mapperService.mapList(devices,customMapper), HttpStatus.OK);
@@ -101,9 +110,22 @@ public class DeviceController extends ExceptionHandling {
         }
     }
 
+    @GetMapping("/get-all-devices-by-user")
+    public ResponseEntity<Set<DeviceResponse>> listByUser(@RequestParam String username) {
+        List<OutgoingGoodsNote> list = outgoingGoodsNoteRepository.findByUsername(username);
+        List<Device> devices = new ArrayList<>();
+        for(OutgoingGoodsNote outgoingGoodsNote : list){
+            devices.addAll(outgoingGoodsNote.getDevices());
+        }
+        return new ResponseEntity(customMapperService.mapListDevice(devices), HttpStatus.OK);
+    }
+
     public CustomMapper<Device, DeviceResponse> customMapper = device -> {
         DeviceResponse deviceResponse = mapper.map(device,DeviceResponse.class);
-        deviceResponse.setCategory(device.getCategory().getDescription());
+        CategoryDTO categoryDTO = new CategoryDTO();
+        categoryDTO.setName(device.getCategory().getName());
+        categoryDTO.setDescription(device.getCategory().getDescription());
+        deviceResponse.setCategory(categoryDTO);
         return deviceResponse;
     };
 }

@@ -2,7 +2,10 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusDevice;
+import com.javaspringboot.DevicesManagementSystemBackend.payload.response.DeviceResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.service.CustomMapperService;
 import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.OutgoingGoodsNoteDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
@@ -39,9 +42,8 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
     @Autowired
     private ModelMapperService modelMapperService;
 
-
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
+    @Autowired
+    private CustomMapperService customMapperService;
     @Autowired
     private UserRepository userRepository;
 
@@ -113,6 +115,7 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
         OutgoingGoodsNoteResponse outgoingGoodsNoteResponse = mapper.map(outgoingGoodsNote,OutgoingGoodsNoteResponse.class);
         outgoingGoodsNoteResponse.setExporter(outgoingGoodsNote.getExporter().getUsername());
         outgoingGoodsNoteResponse.setReceiver(outgoingGoodsNote.getReceiver().getUsername());
+        outgoingGoodsNoteResponse.setDevices(customMapperService.mapListDevice(outgoingGoodsNote.getDevices()));
         return outgoingGoodsNoteResponse;
     };
 }

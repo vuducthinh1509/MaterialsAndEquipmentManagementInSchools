@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -30,7 +31,7 @@ public class OutgoingGoodsNote {
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "outgoingGoodsNote",cascade = CascadeType.REMOVE)
     @JsonManagedReference
-    private Set<Device> devices;
+    private List<Device> devices;
 
 
     public OutgoingGoodsNote(User exporter, User receiver){

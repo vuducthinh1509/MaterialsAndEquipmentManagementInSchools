@@ -9,5 +9,6 @@ public class DeviceDTO {
     private Integer price;
     private Long warrantyTime;
     private Long maintenanceTime;
-    private Long categoryId;
+    private String categoryName;
+    private String categoryDescription;
 }

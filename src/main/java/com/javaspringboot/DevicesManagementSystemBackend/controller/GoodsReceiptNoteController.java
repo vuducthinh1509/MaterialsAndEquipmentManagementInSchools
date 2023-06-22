@@ -2,6 +2,7 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.DeviceDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.GoodsReceiptNoteDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
@@ -18,6 +19,7 @@ import com.javaspringboot.DevicesManagementSystemBackend.repository.CategoryRepo
 import com.javaspringboot.DevicesManagementSystemBackend.repository.DeviceRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.GoodsReceiptNoteRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
+import com.javaspringboot.DevicesManagementSystemBackend.service.CustomMapperService;
 import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -63,17 +65,20 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
     @Autowired
     private DeviceRepository deviceRepository;
 
+    @Autowired
+    private CustomMapperService customMapperService;
+
     @PostMapping("/add")
 
     public ResponseEntity<?> create(@Valid @RequestBody GoodsReceiptNoteDTO goodsReceiptNoteDTO,Authentication authentication) throws UserNotFoundException, DeviceExistException,CategoryNotFoundException{
         String username = authentication.getName();
         User user = userRepository.findUserByUsername(username);
         if(user==null){
-                throw new UserNotFoundException(username);
+            throw new UserNotFoundException(username);
         }
         GoodsReceiptNote goodsReceiptNote = new GoodsReceiptNote(goodsReceiptNoteDTO.getFullname(), goodsReceiptNoteDTO.getPhone(), goodsReceiptNoteDTO.getCompanyName());
         goodsReceiptNote.setUser(user);
-        Set<Device> devices = new HashSet<>();
+        List<Device> devices = new ArrayList<>();
         Set<DeviceDTO> devicesDTO = goodsReceiptNoteDTO.getDevices();
         if(devicesDTO.isEmpty()){
             return ResponseEntity.badRequest().body(new HttpResponse(HttpStatus.BAD_REQUEST.value(),HttpStatus.BAD_REQUEST,"","Devices can not be empty"));
@@ -84,11 +89,13 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
                 throw new DeviceExistException(serial);
             } else {
                 Device _temp = new Device(deviceDTO.getName(),deviceDTO.getSerial(),deviceDTO.getPrice(),deviceDTO.getWarrantyTime(),deviceDTO.getMaintenanceTime());
-                Optional<Category> cate =  categoryRepository.findById(deviceDTO.getCategoryId());
-                if(cate.isPresent()){
-                    _temp.setCategory(cate.get());
+                Category category = categoryRepository.findCategoryByNameAndDescription(deviceDTO.getCategoryName(), deviceDTO.getCategoryDescription());
+                if(category!=null){
+                    _temp.setCategory(category);
                 } else {
-                    throw new CategoryNotFoundException(deviceDTO.getCategoryId().toString());
+                    Category newCategory = new Category(deviceDTO.getCategoryName(), deviceDTO.getCategoryDescription());
+                    categoryRepository.save(newCategory);
+                    _temp.setCategory(newCategory);
                 }
                 _temp.setGoodsReceiptNote(goodsReceiptNote);
                 devices.add(_temp);
@@ -164,7 +171,7 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
     }
 
     @GetMapping("/list-by-current-user")
-    public ResponseEntity<List<GoodsReceiptNote>> getByCurrentUser(Authentication authentication) throws UserNotFoundException {
+    public ResponseEntity<List<GoodsReceiptNoteResponse>> getByCurrentUser(Authentication authentication) throws UserNotFoundException {
         String username = authentication.getName();
         User user = userRepository.findUserByUsername(username);
         if(user==null){
@@ -178,19 +185,8 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
     public CustomMapper<GoodsReceiptNote, GoodsReceiptNoteResponse> customMapper = goodsReceiptNote -> {
         GoodsReceiptNoteResponse goodsReceiptNoteResponse = mapper.map(goodsReceiptNote,GoodsReceiptNoteResponse.class);
         goodsReceiptNoteResponse.setExporter(goodsReceiptNote.getUser().getUsername());
-        Set<DeviceResponse> devicesSet = goodsReceiptNote.getDevices().stream().map(device -> mapDevice(device)).collect(Collectors.toSet());
         goodsReceiptNoteResponse.setExport_date(goodsReceiptNote.getDate());
-        goodsReceiptNoteResponse.setDevices(devicesSet);
+        goodsReceiptNoteResponse.setDevices(customMapperService.mapListDevice(goodsReceiptNote.getDevices()));
         return goodsReceiptNoteResponse;
     };
-
-    public CustomMapper<Device, DeviceResponse> customMapperDevice = device -> {
-        DeviceResponse deviceResponse = mapper.map(device,DeviceResponse.class);
-        deviceResponse.setCategory(device.getCategory().getDescription());
-        return deviceResponse;
-    };
-
-    public DeviceResponse mapDevice(Device device){
-        return modelMapperService.mapObject(device,customMapperDevice);
-    }
 }

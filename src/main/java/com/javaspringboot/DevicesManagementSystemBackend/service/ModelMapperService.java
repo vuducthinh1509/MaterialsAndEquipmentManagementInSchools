@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +19,13 @@ public class ModelMapperService {
                 .map(customMapper::map)
                 .collect(Collectors.toList());
     }
+
+    public static <S, D> Set<D> mapSet(Set<S> sourceSet, CustomMapper<S, D> customMapper) {
+        return sourceSet.stream()
+                .map(customMapper::map)
+                .collect(Collectors.toSet());
+    }
+
     public static  <S, D> D mapObject(S source, CustomMapper<S, D> customMapper) {
         return customMapper.map(source);
     }
@@ -28,5 +36,4 @@ public class ModelMapperService {
                 .map(element -> modelMapper.map(element, targetClass))
                 .collect(Collectors.toList());
     }
-
 }

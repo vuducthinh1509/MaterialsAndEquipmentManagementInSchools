@@ -25,8 +25,10 @@ public class WarrantyCard {
 
     private Date date;
 
+    @Enumerated(EnumType.STRING)
     private EStatusWarranty status;
 
+    @Enumerated(EnumType.STRING)
     private EConfirmStatus confirmStatus;
 
     // ngày bàn giao

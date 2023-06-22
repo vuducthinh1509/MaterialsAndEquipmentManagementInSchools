@@ -5,6 +5,7 @@ import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 @Data
 @AllArgsConstructor
@@ -24,5 +25,5 @@ public class GoodsReceiptNoteResponse {
 
     private String exporter;
 
-    private Set<DeviceResponse> devices;
+    private List<DeviceResponse> devices;
 }

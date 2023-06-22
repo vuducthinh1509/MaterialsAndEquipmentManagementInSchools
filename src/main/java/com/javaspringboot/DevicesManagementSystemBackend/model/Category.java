@@ -26,11 +26,9 @@ public class Category {
     private Long id;
 
     @NotBlank
-    @NotEmpty
     private String name;
 
     @NotBlank
-    @NotEmpty
     private String description;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL) // Quan hệ 1-n với đối tượng ở dưới (Person) (1 địa điểm có nhiều người ở)
