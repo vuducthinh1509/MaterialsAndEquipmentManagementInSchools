@@ -16,9 +16,6 @@ import java.util.Calendar;
 
 @Service
 public class SendGridMailServiceImpl implements SendGridMailService {
-    private static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
-
-    private static final String KEY_X_MOCK = "X-Mock";
 
     private static final String SEND_GRID_ENDPOINT_SEND_EMAIL = "mail/send";
 
@@ -53,7 +50,7 @@ public class SendGridMailServiceImpl implements SendGridMailService {
             request.setEndpoint(SEND_GRID_ENDPOINT_SEND_EMAIL);
             request.setBody(mail.build());
             Response response = sg.api(request);
-            System.out.println(response.getStatusCode());
+            System.out.println(response);
         } catch (IOException ex) {
             ex.printStackTrace();
         }

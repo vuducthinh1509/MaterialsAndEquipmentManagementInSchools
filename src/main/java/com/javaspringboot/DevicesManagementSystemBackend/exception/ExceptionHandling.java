@@ -3,6 +3,7 @@ package com.javaspringboot.DevicesManagementSystemBackend.exception;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.*;
+import com.javaspringboot.DevicesManagementSystemBackend.exception.token.TokenRefreshException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -17,7 +18,9 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.persistence.EntityNotFoundException;
@@ -144,6 +147,11 @@ public class ExceptionHandling implements ErrorController {
         return createHttpResponse(NOT_FOUND,exception.getLocalizedMessage());
     }
 
+    @ExceptionHandler(value = TokenRefreshException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public HttpResponse handleTokenRefreshException(TokenRefreshException ex, WebRequest request) {
+        return new HttpResponse(HttpStatus.FORBIDDEN.value(),HttpStatus.FORBIDDEN,null,ex.getMessage());
+    }
 
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public ResponseEntity<HttpResponse> emptyResultDataAccessException(EmptyResultDataAccessException exception) {

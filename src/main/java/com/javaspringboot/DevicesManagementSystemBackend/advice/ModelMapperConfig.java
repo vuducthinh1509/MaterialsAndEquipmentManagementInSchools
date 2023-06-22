@@ -21,23 +21,12 @@ public class ModelMapperConfig {
     public ModelMapper modelMapper() {
         // Tạo object và cấu hình
         ModelMapper modelMapper = new ModelMapper();
+        // STRICT
+        // mọi từ của thuộc tính đích phải khớp hết
+        // mọi từ trong tên thuộc tính nguồn phải tồn tại trong tên thuộc tính đích.
+        // mọi từ của thuộc tính đích phải khớp hết
         modelMapper.getConfiguration()
                 .setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper;
     }
-
-    private static final String dateFormat = "yyyy-MM-dd";
-    private static final String dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
-
-//    @Bean
-//    public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
-//        return builder -> {
-//            builder.simpleDateFormat(dateFormat);
-//            builder.serializers(new LocalDateSerializer(DateTimeFormatter.ofPattern(dateFormat)));
-//            builder.serializers(new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(dateTimeFormat)));
-//        };
-//    }
-
-
-
 }

@@ -1,4 +1,4 @@
-package com.javaspringboot.DevicesManagementSystemBackend.payload.request.auth;
+package com.javaspringboot.DevicesManagementSystemBackend.payload.request;
 
 import lombok.Data;
 import lombok.Getter;

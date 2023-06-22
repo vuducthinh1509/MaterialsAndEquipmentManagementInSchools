@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class UserDetailsImpl implements UserDetails {
 
   private User user;
+
   private Collection<? extends GrantedAuthority> authorities;
 
   public UserDetailsImpl(User user) {
@@ -58,7 +59,7 @@ public class UserDetailsImpl implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    return true;
+    return this.user.isEnabled();
   }
 
   public void setUser(User user) {this.user = user;}

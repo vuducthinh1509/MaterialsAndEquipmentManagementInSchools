@@ -12,6 +12,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 public class GoodsReceiptNoteResponse {
+    private Long id;
     private String fullname;
 
     private String phone;
@@ -19,9 +20,9 @@ public class GoodsReceiptNoteResponse {
     private String companyName;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date date;
+    private Date export_date;
 
-    private String username;
+    private String exporter;
 
-    private Set<Device> devices;
+    private Set<DeviceResponse> devices;
 }

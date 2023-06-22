@@ -62,16 +62,16 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
         if(exporter==null){
             return new ResponseEntity<>(new HttpResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR,"","Action failed! Try again"),HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        Optional<User> receiver = userRepository.findById(outgoingGoodsNoteDTO.getReceiverId());
-        if(!receiver.isPresent()){
-            throw new UserNotFoundException("No receiver found with id " + outgoingGoodsNoteDTO.getReceiverId());
+        User receiver = userRepository.findUserByUsername(outgoingGoodsNoteDTO.getReceiver());
+        if(receiver==null){
+            throw new UserNotFoundException(outgoingGoodsNoteDTO.getReceiver());
         }
         Set<String> strSerial = outgoingGoodsNoteDTO.getDevices();
         Set<Device> devices = new HashSet<>();
         if(strSerial.isEmpty()){
             return ResponseEntity.badRequest().body(new HttpResponse(HttpStatus.BAD_REQUEST.value(),HttpStatus.BAD_REQUEST,"","devices can not be empty"));
         }
-        OutgoingGoodsNote outgoingGoodsNote = new OutgoingGoodsNote(exporter,receiver.get());
+        OutgoingGoodsNote outgoingGoodsNote = new OutgoingGoodsNote(exporter,receiver);
         for(String serial : strSerial){
             Optional<Device> device = deviceRepository.findDeviceBySerial(serial);
             if(!device.isPresent()){

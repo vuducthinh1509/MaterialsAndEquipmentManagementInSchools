@@ -47,35 +47,44 @@ public class UserController extends ExceptionHandling {
     private ModelMapperService mapperService;
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateById(@RequestParam("id") Long id,@Valid @RequestBody UpdateInforUserRequest user) throws UserNotFoundException,EmailExistException {
-        Optional<User> _user = userRepository.findById(id);
-        if(!_user.isPresent()){
-            throw new UserNotFoundException(id.toString());
+    public ResponseEntity<?> updateByUsername(@RequestParam("username") String username,@Valid @RequestBody UpdateInforUserRequest infoUpdate) throws UserNotFoundException,EmailExistException {
+        User user = userRepository.findUserByUsername(username);
+        if(user == null){
+            throw new UserNotFoundException(username);
         } else {
-            if(user.getEmail()!=null&&!user.getEmail().isBlank() && userRepository.existsByEmail(user.getEmail())){
-                throw new EmailExistException("");
+            if(!user.getEmail().equals(infoUpdate.getEmail())){
+                user.setEmail(infoUpdate.getEmail());
+                if(userRepository.existsByEmail(infoUpdate.getEmail())){
+                    throw new EmailExistException("");
+                }
             }
-            User updatedUser = _user.get();
-            updatedUser.setBirthDate(user.getBirthDate());
-            updatedUser.setFullname(user.getFullname());
-            updatedUser.setPhone(user.getPhone());
-            updatedUser.setTenVien(user.getTenVien());
-            updatedUser.setTenPhong(user.getTenPhong());
-            updatedUser.setTenBan(user.getTenBan());
-            userRepository.save(updatedUser);
+            user.setBirthDate(infoUpdate.getBirthDate());
+            user.setFullname(infoUpdate.getFullname());
+            user.setPhone(infoUpdate.getPhone());
+            user.setTenVien(infoUpdate.getTenVien());
+            user.setTenPhong(infoUpdate.getTenPhong());
+            user.setTenBan(infoUpdate.getTenBan());
+            userRepository.save(user);
             return new ResponseEntity(new MessageResponse("Update succesfully"), OK);
         }
     }
 
     //delete user
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteByUsername(@RequestParam String username) throws UserNotFoundException{
+    @GetMapping("/disable")
+    public ResponseEntity<?> disableByUsername(@RequestParam String username) throws UserNotFoundException{
             User user = userRepository.findUserByUsername(username);
             if(user==null){
                 throw new UserNotFoundException(username);
             }
-            userRepository.delete(user);
-            return new  ResponseEntity(new MessageResponse("Delete succesfully"), OK);
+            user.setDisable();
+            userRepository.save(user);
+            if(user.isEnabled()){
+                return new  ResponseEntity(new MessageResponse("Undisable succesfully"), OK);
+            } else {
+                return new  ResponseEntity(new MessageResponse("Disable succesfully"), OK);
+            }
+
+
 
     }
 
@@ -99,12 +108,6 @@ public class UserController extends ExceptionHandling {
     public ResponseEntity<List<UserResponse>> findByName(@RequestParam String name){
         List<User> users = userRepository.findUserLikeName(name);
         return new ResponseEntity<>(mapperService.mapList(users,customMapper), OK);
-//        User _user = userRepository.findUserByUsername(username);
-//        if(_user!=null){
-//            return ResponseEntity.ok(_user);
-//        } else {
-//            throw new UserNotFoundException(username);
-//        }
     }
 
     public CustomMapper<User, UserResponse> customMapper = user -> {

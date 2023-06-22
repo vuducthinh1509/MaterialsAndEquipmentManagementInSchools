@@ -5,31 +5,30 @@ import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.EmailExistException;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UsernameExistException;
-import com.javaspringboot.DevicesManagementSystemBackend.exception.token.TokenRefreshException;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
-import com.javaspringboot.DevicesManagementSystemBackend.model.RefreshToken;
 import com.javaspringboot.DevicesManagementSystemBackend.model.Role;
 import com.javaspringboot.DevicesManagementSystemBackend.model.User;
-import com.javaspringboot.DevicesManagementSystemBackend.payload.request.auth.LoginRequest;
-import com.javaspringboot.DevicesManagementSystemBackend.payload.request.auth.SignupRequest;
+import com.javaspringboot.DevicesManagementSystemBackend.payload.request.LoginRequest;
+import com.javaspringboot.DevicesManagementSystemBackend.payload.request.SignupRequest;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.UserResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.RoleRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.security.jwt.JwtUtils;
-import com.javaspringboot.DevicesManagementSystemBackend.security.services.RefreshTokenService;
 import com.javaspringboot.DevicesManagementSystemBackend.security.services.UserDetailsImpl;
+import com.javaspringboot.DevicesManagementSystemBackend.service.Impl.UserServiceImpl;
 import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,11 +37,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -52,6 +47,8 @@ import java.util.stream.Collectors;
 public class AuthController extends ExceptionHandling {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
+
   @Autowired
   AuthenticationManager authenticationManager;
 
@@ -68,7 +65,7 @@ public class AuthController extends ExceptionHandling {
   JwtUtils jwtUtils;
 
   @Autowired
-  RefreshTokenService refreshTokenService;
+  UserServiceImpl userService;
 
   @Autowired
   private ModelMapper mapper;
@@ -77,20 +74,20 @@ public class AuthController extends ExceptionHandling {
   private ModelMapperService mapperService;
 
   @PostMapping("/signin")
-  public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+  public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) throws DisabledException {
 
     Authentication authentication = authenticationManager
-        .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+            .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
+    String token = userService.createRefreshToken(userDetails.getId());
+
     ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
-    RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-    
-    ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());
+    ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(token);
     return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
             .header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
@@ -138,7 +135,7 @@ public class AuthController extends ExceptionHandling {
   public ResponseEntity<?> logoutUser() {
     Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     if (principle.toString() != "anonymousUser") {
-      refreshTokenService.deleteByUserId(((UserDetailsImpl) principle).getId());
+      userService.clearRefreshToken(((UserDetailsImpl) principle).getId());
     }
     ResponseCookie jwtCookie = jwtUtils.getCleanJwtCookie();
     ResponseCookie jwtRefreshCookie = jwtUtils.getCleanJwtRefreshCookie();
@@ -152,21 +149,22 @@ public class AuthController extends ExceptionHandling {
   @PostMapping("/refreshtoken")
   public ResponseEntity<?> refreshtoken(HttpServletRequest request) {
     String refreshToken = jwtUtils.getJwtRefreshFromCookies(request);
-    
-    if ((refreshToken != null) && (refreshToken.length() > 0)) {
-      return refreshTokenService.findByToken(refreshToken)
-          .map(refreshTokenService::verifyExpiration)
-          .map(RefreshToken::getUser)
-          .map(user -> {
-            ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(user);
-            return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .body(new MessageResponse("Token is refreshed successfully!"));
-          })
-          .orElseThrow(() -> new TokenRefreshException(refreshToken,
-              "Refresh token is not in database!"));
+
+    if(refreshToken.length()!=36){
+      return ResponseEntity.badRequest().body(new MessageResponse("Invalid Refresh Token format"));
     }
-    return ResponseEntity.badRequest().body(new MessageResponse("Refresh Token is empty!"));
+    User user = userService.findByRefreshToken(refreshToken);
+    if(user==null){
+      return ResponseEntity.badRequest().body(new MessageResponse("Refresh token is not in database!"));
+    }
+    if(userService.verifyExpiration(user)){
+      return ResponseEntity.badRequest().body(new MessageResponse("Refresh token was expired. Please make a new signin request"));
+    } else {
+      ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(user);
+      return ResponseEntity.ok()
+              .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+              .body(new MessageResponse("Token is refreshed successfully!"));
+    }
   }
 
   public CustomMapper<User, UserResponse> customMapper = user -> {

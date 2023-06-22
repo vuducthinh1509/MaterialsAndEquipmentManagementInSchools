@@ -13,9 +13,8 @@ import java.util.Set;
 @Getter
 @Setter
 public class OutgoingGoodsNoteDTO {
-    private Long id;
 
     @Min(value = 0L,message = "must be positive")
-    private Long receiverId;
+    private String receiver;
     private Set<String> devices;
 }

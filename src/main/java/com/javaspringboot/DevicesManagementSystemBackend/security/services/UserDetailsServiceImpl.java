@@ -6,20 +6,19 @@ import com.javaspringboot.DevicesManagementSystemBackend.repository.UserReposito
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.javaspringboot.DevicesManagementSystemBackend.constant.UserImplConstant.FOUND_USER_BY_USERNAME;
-import static com.javaspringboot.DevicesManagementSystemBackend.constant.UserImplConstant.NO_USER_FOUND_BY_USERNAME;
+
 
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
-
-  private Logger LOGGER = LoggerFactory.getLogger(getClass());
+  public static final String NO_USER_FOUND_BY_USERNAME = "No user found by username: ";
   @Autowired
   UserRepository userRepository;
 
@@ -27,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   @Transactional
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     User user = userRepository.findUserByUsername(username);
-    if (user == null) {
+    if(user==null){
       throw new UsernameNotFoundException(NO_USER_FOUND_BY_USERNAME + username);
     } else {
       userRepository.save(user);

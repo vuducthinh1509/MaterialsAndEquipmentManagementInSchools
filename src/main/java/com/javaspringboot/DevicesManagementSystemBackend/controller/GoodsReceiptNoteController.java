@@ -11,6 +11,7 @@ import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.GoodsR
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.model.*;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.UpdateGoodsReceiptNoteRequest;
+import com.javaspringboot.DevicesManagementSystemBackend.payload.response.DeviceResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.GoodsReceiptNoteResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.CategoryRepository;
@@ -36,6 +37,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
@@ -147,17 +149,21 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
         }
     }
 
-    @GetMapping("/listbyuserid")
-    public ResponseEntity<List<GoodsReceiptNote>> getByUserId(@RequestParam(value = "userid") Long id){
+    @GetMapping("/list-by-username")
+    public ResponseEntity<List<GoodsReceiptNote>> getByUsername(@RequestParam(value = "username") String username) throws UserNotFoundException {
         try {
-            List<GoodsReceiptNote> list = goodsReceiptNoteRepository.findByUserId(id);
+            User user = userRepository.findUserByUsername(username);
+            if(user==null){
+                throw new UserNotFoundException(username);
+            }
+            List<GoodsReceiptNote> list = goodsReceiptNoteRepository.findByUserId(user.getId());
             return new ResponseEntity(modelMapperService.mapList(list,customMapper),HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             throw new EntityNotFoundException(e.getMessage());
         }
     }
 
-    @GetMapping("/listbycurrentuser")
+    @GetMapping("/list-by-current-user")
     public ResponseEntity<List<GoodsReceiptNote>> getByCurrentUser(Authentication authentication) throws UserNotFoundException {
         String username = authentication.getName();
         User user = userRepository.findUserByUsername(username);
@@ -171,7 +177,20 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
 
     public CustomMapper<GoodsReceiptNote, GoodsReceiptNoteResponse> customMapper = goodsReceiptNote -> {
         GoodsReceiptNoteResponse goodsReceiptNoteResponse = mapper.map(goodsReceiptNote,GoodsReceiptNoteResponse.class);
-        goodsReceiptNoteResponse.setUsername(goodsReceiptNote.getUser().getUsername());
+        goodsReceiptNoteResponse.setExporter(goodsReceiptNote.getUser().getUsername());
+        Set<DeviceResponse> devicesSet = goodsReceiptNote.getDevices().stream().map(device -> mapDevice(device)).collect(Collectors.toSet());
+        goodsReceiptNoteResponse.setExport_date(goodsReceiptNote.getDate());
+        goodsReceiptNoteResponse.setDevices(devicesSet);
         return goodsReceiptNoteResponse;
     };
+
+    public CustomMapper<Device, DeviceResponse> customMapperDevice = device -> {
+        DeviceResponse deviceResponse = mapper.map(device,DeviceResponse.class);
+        deviceResponse.setCategory(device.getCategory().getDescription());
+        return deviceResponse;
+    };
+
+    public DeviceResponse mapDevice(Device device){
+        return modelMapperService.mapObject(device,customMapperDevice);
+    }
 }

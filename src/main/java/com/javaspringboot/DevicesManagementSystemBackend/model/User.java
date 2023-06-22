@@ -11,11 +11,9 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +29,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements Serializable {
+
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -69,6 +69,10 @@ public class User implements Serializable {
 
   private String tenBan;
 
+  private String refreshToken;
+
+  private Instant expiryRefreshToken;
+
   @OneToMany(fetch = FetchType.EAGER,mappedBy = "exporter")
   @JsonBackReference
   private Set<WarrantyCard> warrantyCards1;
@@ -92,6 +96,8 @@ public class User implements Serializable {
   @JsonManagedReference
   private Set<Role> roles = new HashSet<>();
 
+  @NotNull
+  private boolean isEnabled = true;
 
   public User(String username, String email, String password, String fullname,Date birthDate, String phone, String tenVien, String tenPhong, String tenBan) {
     this.username = username;
@@ -114,4 +120,8 @@ public class User implements Serializable {
     this.tenPhong=tenPhong;
     this.tenBan=tenBan;
   }
+
+    public void setDisable(){
+      this.isEnabled = !this.isEnabled;
+    }
 }
