@@ -90,6 +90,7 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
 
             }
         }
+        outgoingGoodsNote.setDevices(devices);
         outgoingGoodsNoteRepository.save(outgoingGoodsNote);
         return new ResponseEntity(new MessageResponse("Add succesfully"),HttpStatus.CREATED);
     }
@@ -109,13 +110,14 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
     public ResponseEntity<?> findById(@RequestParam Long id){
         Optional<OutgoingGoodsNote> outgoingGoodsNote = outgoingGoodsNoteRepository.findById(id);
         return new ResponseEntity(modelMapperService.mapObject(outgoingGoodsNote.get(),customMapper),HttpStatus.OK);
+
     }
 
     public CustomMapper<OutgoingGoodsNote, OutgoingGoodsNoteResponse> customMapper = outgoingGoodsNote -> {
         OutgoingGoodsNoteResponse outgoingGoodsNoteResponse = mapper.map(outgoingGoodsNote,OutgoingGoodsNoteResponse.class);
         outgoingGoodsNoteResponse.setExporter(outgoingGoodsNote.getExporter().getUsername());
         outgoingGoodsNoteResponse.setReceiver(outgoingGoodsNote.getReceiver().getUsername());
-        outgoingGoodsNoteResponse.setDevices(customMapperService.mapListDevice(outgoingGoodsNote.getDevices()));
+        outgoingGoodsNoteResponse.setDevices(customMapperService.mapSetDevice(outgoingGoodsNote.getDevices()));
         return outgoingGoodsNoteResponse;
     };
 }

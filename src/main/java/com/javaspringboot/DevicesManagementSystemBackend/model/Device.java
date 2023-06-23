@@ -72,6 +72,8 @@ public class Device {
     private void preRemove() {
         outgoingGoodsNote = null;
         status = EStatusDevice.TRONG_KHO;
+        maintenanceStatus = null;
+        warrantyStatus = null;
     }
 
     public Device(String name,String serial,Integer price,Long warrantyTime,Long maintenanceTime){

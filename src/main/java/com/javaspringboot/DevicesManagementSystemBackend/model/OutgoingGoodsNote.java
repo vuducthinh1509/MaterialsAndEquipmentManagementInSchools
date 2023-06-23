@@ -2,6 +2,7 @@ package com.javaspringboot.DevicesManagementSystemBackend.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -18,6 +19,7 @@ public class OutgoingGoodsNote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date exportDate;
 
     @ManyToOne
@@ -31,7 +33,7 @@ public class OutgoingGoodsNote {
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "outgoingGoodsNote",cascade = CascadeType.REMOVE)
     @JsonManagedReference
-    private List<Device> devices;
+    private Set<Device> devices;
 
 
     public OutgoingGoodsNote(User exporter, User receiver){

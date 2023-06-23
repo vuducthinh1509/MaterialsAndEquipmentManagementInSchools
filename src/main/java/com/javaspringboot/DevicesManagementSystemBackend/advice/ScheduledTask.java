@@ -32,7 +32,7 @@ public class ScheduledTask {
             Date export_date = item.getExportDate();
             long timestamp1 = currentDate.getTime();
             long timestamp2 = export_date.getTime();
-            List<Device> devices = item.getDevices();
+            Set<Device> devices = item.getDevices();
             for(Device device : devices){
                 long differenceInSeconds = (timestamp1 - timestamp2) / 1000 % (device.getMaintenanceTime()/12*365*24*60*60);
                 if(differenceInSeconds < 24*60*60){

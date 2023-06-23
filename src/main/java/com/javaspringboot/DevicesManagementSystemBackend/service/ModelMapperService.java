@@ -20,10 +20,10 @@ public class ModelMapperService {
                 .collect(Collectors.toList());
     }
 
-    public static <S, D> Set<D> mapSet(Set<S> sourceSet, CustomMapper<S, D> customMapper) {
+    public static <S, D> List<D> mapSet(Set<S> sourceSet, CustomMapper<S, D> customMapper) {
         return sourceSet.stream()
                 .map(customMapper::map)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     public static  <S, D> D mapObject(S source, CustomMapper<S, D> customMapper) {

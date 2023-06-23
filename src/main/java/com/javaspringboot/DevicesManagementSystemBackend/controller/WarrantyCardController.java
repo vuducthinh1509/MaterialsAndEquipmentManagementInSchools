@@ -2,6 +2,7 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.WarrantyCardDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EConfirmStatus;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusWarranty;
@@ -13,10 +14,12 @@ import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
 import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.model.WarrantyCard;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.WarrantyCardRequest;
+import com.javaspringboot.DevicesManagementSystemBackend.payload.response.DeviceResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.DeviceRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.WarrantyCardRepository;
+import com.javaspringboot.DevicesManagementSystemBackend.service.CustomMapperService;
 import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,9 @@ public class WarrantyCardController extends ExceptionHandling {
 
     @Autowired
     private ModelMapper mapper;
+
+    @Autowired
+    private CustomMapperService customMapperService;
 
     @Autowired
     private ModelMapperService modelMapperService;
@@ -152,16 +158,6 @@ public class WarrantyCardController extends ExceptionHandling {
         List<WarrantyCard> warrantyCardList = warrantyCardRepository.findWarrantyCardByReceiverId(user.getId());
         return new ResponseEntity<>(modelMapperService.mapList(warrantyCardList,customMapper),HttpStatus.OK);
     }
-    public CustomMapper<WarrantyCard, WarrantyCardDTO> customMapper = warrantyCard -> {
-        WarrantyCardDTO warrantyCardDTO = mapper.map(warrantyCard,WarrantyCardDTO.class);
-        User user1 = warrantyCard.getConfirmer();
-        User user2 = warrantyCard.getExporter();
-        User user3 = warrantyCard.getReceiver();
-        warrantyCardDTO.setConfirmer(user1==null?null:user1.getUsername());
-        warrantyCardDTO.setExporter(user2==null?null:user2.getUsername());
-        warrantyCardDTO.setReceiver(user3==null?null:user3.getUsername());
-        return warrantyCardDTO;
-    };
 
     @GetMapping("/transfer")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
@@ -181,4 +177,17 @@ public class WarrantyCardController extends ExceptionHandling {
         warrantyCardRepository.save(warrantyCard);
         return new ResponseEntity<>(new MessageResponse("Transfer succesfully"),HttpStatus.OK);
     }
+
+    public CustomMapper<WarrantyCard, WarrantyCardDTO> customMapper = warrantyCard -> {
+        WarrantyCardDTO warrantyCardDTO = mapper.map(warrantyCard,WarrantyCardDTO.class);
+        User user1 = warrantyCard.getConfirmer();
+        User user2 = warrantyCard.getExporter();
+        User user3 = warrantyCard.getReceiver();
+        warrantyCardDTO.setConfirmer(user1==null?null:user1.getUsername());
+        warrantyCardDTO.setExporter(user2==null?null:user2.getUsername());
+        warrantyCardDTO.setReceiver(user3==null?null:user3.getUsername());
+        warrantyCardDTO.setDevice(customMapperService.mapDevice(warrantyCard.getDevice()));
+        return warrantyCardDTO;
+    };
+
 }

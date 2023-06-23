@@ -29,4 +29,12 @@ public class CustomMapperService {
     public List<DeviceResponse> mapListDevice(List<Device> list){
         return modelMapperService.mapList(list,customMapperDevice);
     }
+
+    public List<DeviceResponse> mapSetDevice(Set<Device> list){
+        return modelMapperService.mapSet(list,customMapperDevice);
+    }
+
+    public DeviceResponse mapDevice(Device device){
+        return modelMapperService.mapObject(device,customMapperDevice);
+    }
 }
