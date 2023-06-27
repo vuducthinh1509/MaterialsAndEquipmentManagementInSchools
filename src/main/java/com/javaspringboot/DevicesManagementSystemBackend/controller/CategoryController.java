@@ -30,7 +30,12 @@ public class CategoryController extends ExceptionHandling {
     private CategoryRepository categoryRepository;
     @PostMapping("/add")
     public ResponseEntity<?> add(@Valid @RequestBody CategoryDTO addCategoryRequest) {
-        if(categoryRepository.existsByDescription(addCategoryRequest.getDescription())){
+//        if(categoryRepository.existsByDescription(addCategoryRequest.getDescription())&& categoryRepository.existsByName(addCategoryRequest.getName())){
+//            return ResponseEntity.badRequest().body(new HttpResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,
+//                    "","Category is already taken!"));
+//        }
+        Category category = categoryRepository.findCategoryByNameAndDescription(addCategoryRequest.getName(), addCategoryRequest.getDescription());
+        if(category!=null){
             return ResponseEntity.badRequest().body(new HttpResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,
                     "","Category is already taken!"));
         }
@@ -54,6 +59,18 @@ public class CategoryController extends ExceptionHandling {
     public ResponseEntity<List<Category>> getAll() {
         List<Category> categories = categoryRepository.findAll();
         return new ResponseEntity<>(categories, OK);
+    }
+
+    @GetMapping("/list-distinct-categories")
+    public ResponseEntity<List<?>> getDistinctCategories() {
+        List<?> categories = categoryRepository.getDistinctByName();
+        return new ResponseEntity<>(categories, OK);
+    }
+
+    @GetMapping("/list-by-category-name")
+    public ResponseEntity<List<String>> listByCategoryName(@RequestParam String name){
+        List<String> descriptionStr = categoryRepository.listDescriptionByCategoryName(name);
+        return new ResponseEntity<>(descriptionStr, OK);
     }
 
     @PutMapping("/update")

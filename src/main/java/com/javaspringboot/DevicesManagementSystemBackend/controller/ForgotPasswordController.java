@@ -3,16 +3,23 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.PasswordDTO;
+import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.model.PasswordResetToken;
 import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.PasswordTokenRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
+import com.javaspringboot.DevicesManagementSystemBackend.security.services.UserDetailsImpl;
 import com.javaspringboot.DevicesManagementSystemBackend.service.Impl.SendGridMailServiceImpl;
 import com.sendgrid.Content;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,6 +34,9 @@ import static org.springframework.http.HttpStatus.OK;
 public class ForgotPasswordController {
 
     @Autowired
+    AuthenticationManager authenticationManager;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -34,6 +44,9 @@ public class ForgotPasswordController {
 
     @Autowired
     private SendGridMailServiceImpl sendGridMailService;
+
+    @Autowired
+    private PasswordEncoder encoder;
 
     @PostMapping("/resetPassword")
     public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail){
@@ -63,7 +76,7 @@ public class ForgotPasswordController {
         return new ResponseEntity<>(new HttpResponse(OK.value(), OK,"","Email sent"), OK);
     }
 
-    @GetMapping("/changePassword")
+    @GetMapping("/verifyToken")
     public ResponseEntity<?> showChangePasswordPage(@RequestParam("token") String token) {
         String result = sendGridMailService.validatePasswordResetToken(token);
         if(result != null) {
@@ -87,5 +100,23 @@ public class ForgotPasswordController {
         } else {
             return new ResponseEntity<>(new MessageResponse("Change password failed"),HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PostMapping("/changePassword")
+    @PreAuthorize("hasAnyRole('ROLE_USER') or hasAnyRole('ROLE_ADMIN')")
+    public ResponseEntity<?> changePassword(@RequestParam("oldPassword") String oldPassword, @RequestParam("newPassword") String newPassword, Authentication authentication) throws UserNotFoundException {
+        try {
+            Authentication _authentication = authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(authentication.getName(), oldPassword));
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            User user = userDetails.getUser();
+            user.setPassword(encoder.encode(newPassword));
+            userRepository.save(user);
+            return new ResponseEntity<>(new MessageResponse("Change password successfully"), OK);
+
+        } catch (Exception e){
+            return new ResponseEntity<>(new MessageResponse("Old password does not match"),HttpStatus.BAD_REQUEST);
+        }
+
     }
 }

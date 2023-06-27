@@ -120,6 +120,17 @@ public class DeviceController extends ExceptionHandling {
         return new ResponseEntity(customMapperService.mapListDevice(devices), HttpStatus.OK);
     }
 
+    @GetMapping("/list-devices-by-category-name")
+    public ResponseEntity<Set<DeviceResponse>> listByCategoryName(@RequestParam(required = true) String categoryName){
+        List<Category> categories = categoryRepository.findCategoriesByName(categoryName);
+        List<Device> devices = new ArrayList<>();
+        for(Category category : categories){
+            List<Device> deviceList = deviceRepository.findDeviceByCategoryId(category.getId());
+            devices.addAll(deviceList);
+        }
+        return new ResponseEntity(customMapperService.mapListDevice(devices), HttpStatus.OK);
+    }
+
     public CustomMapper<Device, DeviceResponse> customMapper = device -> {
         DeviceResponse deviceResponse = mapper.map(device,DeviceResponse.class);
         CategoryDTO categoryDTO = new CategoryDTO();

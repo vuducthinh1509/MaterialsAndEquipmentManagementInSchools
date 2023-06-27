@@ -17,4 +17,8 @@ public interface DeviceRepository extends JpaRepository<Device,Long> {
 
     @Query(value = "select d.* from devices d where d.status = ?1",nativeQuery = true)
     List<Device> findDeviceWithStatus(int status);
+
+
+    @Query(value = "select * from devices d where d.category_id  = ?1 and d.status = 'TRONG_KHO'",nativeQuery = true)
+    List<Device> findDeviceByCategoryId(Long id);
 }

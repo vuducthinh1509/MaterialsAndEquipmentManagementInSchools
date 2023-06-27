@@ -35,6 +35,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -69,7 +70,7 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
     private CustomMapperService customMapperService;
 
     @PostMapping("/add")
-
+    @Transactional
     public ResponseEntity<?> create(@Valid @RequestBody GoodsReceiptNoteDTO goodsReceiptNoteDTO,Authentication authentication) throws UserNotFoundException, DeviceExistException,CategoryNotFoundException{
         String username = authentication.getName();
         User user = userRepository.findUserByUsername(username);

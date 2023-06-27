@@ -12,10 +12,7 @@ import javax.validation.constraints.NotEmpty;
 import java.util.Set;
 
 @Entity
-@Table(name="categories",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = "description"),
-        })
+@Table(name="categories")
 @Getter
 @Setter
 @NoArgsConstructor
