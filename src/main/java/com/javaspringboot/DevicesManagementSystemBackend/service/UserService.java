@@ -1,7 +1,6 @@
 package com.javaspringboot.DevicesManagementSystemBackend.service;
 
 import com.javaspringboot.DevicesManagementSystemBackend.model.User;
-import org.springframework.stereotype.Service;
 
 public interface UserService {
     void clearRefreshToken(Long id);
@@ -11,4 +10,6 @@ public interface UserService {
     User findByRefreshToken(String refreshToken);
 
     boolean verifyExpiration(User user);
+
+    String refreshToken(Long id);
 }

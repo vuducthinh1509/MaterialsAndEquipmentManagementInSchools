@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+
     @Override
     public User findByRefreshToken(String refreshToken) {
         return userRepository.findUserByRefreshToken(refreshToken);
@@ -53,6 +54,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean verifyExpiration(User user) {
         return user.getExpiryRefreshToken().compareTo(Instant.now()) < 0;
+    }
+
+    @Override
+    public String refreshToken(Long id) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if(userOpt.isPresent()){
+            User user = userOpt.get();
+            String token = UUID.randomUUID().toString();
+            user.setRefreshToken(token);
+            userRepository.save(user);
+            return token;
+        }
+        return null;
     }
 
 

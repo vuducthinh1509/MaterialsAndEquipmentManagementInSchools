@@ -101,6 +101,11 @@ public class JwtUtils {
     ResponseCookie cookie = ResponseCookie.from(name, value).path(path).maxAge(24 * 60 * 60).httpOnly(true).build();
     return cookie;
   }
+
+  private ResponseCookie generateCookieRefreshToken(String name, String value,String path,Long maxAge){
+    ResponseCookie cookie = ResponseCookie.from(name, value).path(path).maxAge(maxAge).httpOnly(true).build();
+    return cookie;
+  }
   
   private String getCookieValueByName(HttpServletRequest request, String name) {
     Cookie cookie = WebUtils.getCookie(request, name);

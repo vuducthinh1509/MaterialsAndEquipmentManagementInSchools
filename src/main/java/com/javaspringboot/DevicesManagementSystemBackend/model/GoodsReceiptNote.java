@@ -1,14 +1,15 @@
 package com.javaspringboot.DevicesManagementSystemBackend.model;
 
-import com.fasterxml.jackson.annotation.*;
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -32,13 +33,14 @@ public class GoodsReceiptNote {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "goodsReceiptNote",cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "goodsReceiptNote", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Device> devices;
-    public GoodsReceiptNote(String fullname, String phone, String companyName){
+
+    public GoodsReceiptNote(String fullname, String phone, String companyName) {
         this.fullname = fullname;
         this.phone = phone;
-        this.companyName =companyName;
+        this.companyName = companyName;
         this.date = new Date();
     }
 

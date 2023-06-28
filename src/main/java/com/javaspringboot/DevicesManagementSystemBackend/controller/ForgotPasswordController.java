@@ -103,7 +103,7 @@ public class ForgotPasswordController {
     }
 
     @PostMapping("/changePassword")
-    @PreAuthorize("hasAnyRole('ROLE_USER') or hasAnyRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER') or hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<?> changePassword(@RequestParam("oldPassword") String oldPassword, @RequestParam("newPassword") String newPassword, Authentication authentication) throws UserNotFoundException {
         try {
             Authentication _authentication = authenticationManager

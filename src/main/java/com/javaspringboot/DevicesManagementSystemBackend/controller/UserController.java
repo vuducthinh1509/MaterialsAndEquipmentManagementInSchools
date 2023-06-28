@@ -5,27 +5,21 @@ import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.EmailExistException;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
-import com.javaspringboot.DevicesManagementSystemBackend.model.OutgoingGoodsNote;
 import com.javaspringboot.DevicesManagementSystemBackend.model.Role;
 import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.UpdateInforUserRequest;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
-import com.javaspringboot.DevicesManagementSystemBackend.payload.response.OutgoingGoodsNoteResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.UserResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 

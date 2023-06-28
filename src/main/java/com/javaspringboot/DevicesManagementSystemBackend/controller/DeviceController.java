@@ -3,20 +3,16 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
-import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusDevice;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.DeviceNotFoundException;
-import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.model.*;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.UpdateDeviceRequest;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.DeviceResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
-import com.javaspringboot.DevicesManagementSystemBackend.payload.response.UserResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.CategoryRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.DeviceRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.OutgoingGoodsNoteRepository;
-import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.service.CustomMapperService;
 import com.javaspringboot.DevicesManagementSystemBackend.service.DeviceService;
 import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
@@ -34,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000",maxAge = 3600,allowCredentials = "true")
 @RequestMapping("/api/device")
@@ -80,9 +75,9 @@ public class DeviceController extends ExceptionHandling {
             } else if(type.equalsIgnoreCase("status")){
                 List<Device> devices = new ArrayList<>();
                 if(data.equalsIgnoreCase("trong_kho")){
-                    devices = deviceService.findDeviceByStatus(0);
+                    devices = deviceService.findDeviceByStatus(EStatusDevice.TRONG_KHO.toString());
                 } else if(data.equalsIgnoreCase("da_xuat")){
-                    devices = deviceService.findDeviceByStatus(1);
+                    devices = deviceService.findDeviceByStatus(EStatusDevice.DA_XUAT.toString());
                 }
                 return new ResponseEntity(mapperService.mapList(devices,customMapper), HttpStatus.OK);
             } else {
@@ -110,8 +105,9 @@ public class DeviceController extends ExceptionHandling {
         }
     }
 
-    @GetMapping("/get-all-devices-by-user")
-    public ResponseEntity<Set<DeviceResponse>> listByUser(@RequestParam String username) {
+    @GetMapping("/list-by-username")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<Set<DeviceResponse>> listByUsername(@RequestParam String username) {
         List<OutgoingGoodsNote> list = outgoingGoodsNoteRepository.findByUsername(username);
         List<Device> devices = new ArrayList<>();
         for(OutgoingGoodsNote outgoingGoodsNote : list){
@@ -120,7 +116,17 @@ public class DeviceController extends ExceptionHandling {
         return new ResponseEntity(customMapperService.mapListDevice(devices), HttpStatus.OK);
     }
 
-    @GetMapping("/list-devices-by-category-name")
+    @GetMapping("/list-by-current-user")
+    public ResponseEntity<Set<DeviceResponse>> listByCurrentUser(Authentication authentication) {
+        List<OutgoingGoodsNote> list = outgoingGoodsNoteRepository.findByUsername(authentication.getName());
+        List<Device> devices = new ArrayList<>();
+        for(OutgoingGoodsNote outgoingGoodsNote : list){
+            devices.addAll(outgoingGoodsNote.getDevices());
+        }
+        return new ResponseEntity(customMapperService.mapListDevice(devices), HttpStatus.OK);
+    }
+
+    @GetMapping("/list-by-category-name")
     public ResponseEntity<Set<DeviceResponse>> listByCategoryName(@RequestParam(required = true) String categoryName){
         List<Category> categories = categoryRepository.findCategoriesByName(categoryName);
         List<Device> devices = new ArrayList<>();

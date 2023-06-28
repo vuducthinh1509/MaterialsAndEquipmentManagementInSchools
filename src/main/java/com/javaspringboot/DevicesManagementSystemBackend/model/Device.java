@@ -52,9 +52,10 @@ public class Device {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
+    @JsonManagedReference
     private Category category;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="goodsReceiptNote_id",nullable = false)
     @JsonBackReference
     private GoodsReceiptNote goodsReceiptNote;
@@ -64,7 +65,7 @@ public class Device {
     @JsonBackReference
     private OutgoingGoodsNote outgoingGoodsNote;
 
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "device")
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "device")
     @JsonBackReference
     private Set<WarrantyCard> warrantyCards;
 

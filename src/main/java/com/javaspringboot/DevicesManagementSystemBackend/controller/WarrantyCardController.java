@@ -2,7 +2,6 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
-import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.WarrantyCardDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EConfirmStatus;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusWarranty;
@@ -14,7 +13,6 @@ import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
 import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.model.WarrantyCard;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.WarrantyCardRequest;
-import com.javaspringboot.DevicesManagementSystemBackend.payload.response.DeviceResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.DeviceRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
@@ -27,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;

@@ -12,7 +12,6 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -34,7 +33,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import static org.springframework.http.HttpStatus.*;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @RestControllerAdvice
 public class ExceptionHandling implements ErrorController {
@@ -59,6 +57,8 @@ public class ExceptionHandling implements ErrorController {
     private static final String WARRANTY_CARD_NOT_FOUND = "No warranty card with id %s";
 
     private static final String GOODS_RECEIPT_NOTE_NOT_FOUND = "No goods receipt note with id %s";
+
+    private static final String OUTGOING_GOODS_NOTE_NOT_FOUND = "No outgoing goods note with id %s";
 
     private static final String USER_NOT_FOUND_WITH_USERNAME = "No found user with username %s";
 
@@ -101,25 +101,31 @@ public class ExceptionHandling implements ErrorController {
 
     @ExceptionHandler(DeviceNotFoundException.class)
     public ResponseEntity<HttpResponse> deviceNotFoundException(DeviceNotFoundException exception) {
-        LOGGER.warn(exception.getMessage());
+        LOGGER.warn(String.format(DEVICE_NOT_FOUND,exception.getMessage()));
         return createHttpResponse(NOT_FOUND, String.format(DEVICE_NOT_FOUND,exception.getLocalizedMessage()));
     }
 
-    @ExceptionHandler(GoodsReceiptNoteException.class)
-    public ResponseEntity<HttpResponse> deviceNotFoundException(GoodsReceiptNoteException exception) {
-        LOGGER.warn(exception.getMessage());
+    @ExceptionHandler(GoodsReceiptNoteNotFoundException.class)
+    public ResponseEntity<HttpResponse> deviceNotFoundException(GoodsReceiptNoteNotFoundException exception) {
+        LOGGER.warn(String.format(GOODS_RECEIPT_NOTE_NOT_FOUND,exception.getMessage()));
         return createHttpResponse(NOT_FOUND, String.format(GOODS_RECEIPT_NOTE_NOT_FOUND,exception.getLocalizedMessage()));
     }
 
+    @ExceptionHandler(OutgoingGoodsNoteNotFoundException.class)
+    public ResponseEntity<HttpResponse> outgoingGoodsNoteException(OutgoingGoodsNoteNotFoundException exception) {
+        LOGGER.warn(String.format(OUTGOING_GOODS_NOTE_NOT_FOUND,exception.getMessage()));
+        return createHttpResponse(NOT_FOUND, String.format(OUTGOING_GOODS_NOTE_NOT_FOUND,exception.getLocalizedMessage()));
+    }
+
     @ExceptionHandler(CategoryNotFoundException.class)
-    public ResponseEntity<HttpResponse> categoryNotFoundException(CategoryNotFoundException exception) {
-        LOGGER.warn(exception.getMessage());
+    public ResponseEntity<HttpResponse> categoryNotFoundException(CategoryNotFoundException exception) {;
+        LOGGER.warn(String.format(CATEGORY_NOT_FOUND,exception.getMessage()));
         return createHttpResponse(NOT_FOUND, String.format(CATEGORY_NOT_FOUND,exception.getLocalizedMessage()));
     }
 
     @ExceptionHandler(WarrantyCardNotFoundException.class)
     public ResponseEntity<HttpResponse> warrantyCardNotFoundException(WarrantyCardNotFoundException exception) {
-        LOGGER.warn(exception.getMessage());
+        LOGGER.warn(String.format(WARRANTY_CARD_NOT_FOUND,exception.getMessage()));
         return createHttpResponse(NOT_FOUND, String.format(WARRANTY_CARD_NOT_FOUND,exception.getLocalizedMessage()));
     }
 

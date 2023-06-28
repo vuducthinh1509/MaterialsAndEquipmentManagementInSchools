@@ -2,17 +2,15 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
-import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.DeviceDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.GoodsReceiptNoteDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
-import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.CategoryNotFoundException;
-import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.DeviceExistException;
-import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.GoodsReceiptNoteException;
-import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
-import com.javaspringboot.DevicesManagementSystemBackend.model.*;
+import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.*;
+import com.javaspringboot.DevicesManagementSystemBackend.model.Category;
+import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
+import com.javaspringboot.DevicesManagementSystemBackend.model.GoodsReceiptNote;
+import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.UpdateGoodsReceiptNoteRequest;
-import com.javaspringboot.DevicesManagementSystemBackend.payload.response.DeviceResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.GoodsReceiptNoteResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.CategoryRepository;
@@ -25,13 +23,11 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
@@ -39,14 +35,15 @@ import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/phieunhap")
 @CrossOrigin(origins = "http://localhost:3000",maxAge = 3600,allowCredentials = "true")
-@PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
 public class GoodsReceiptNoteController extends ExceptionHandling {
 
     private static final Logger logger = LoggerFactory.getLogger(GoodsReceiptNoteController.class);
@@ -71,6 +68,7 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
 
     @PostMapping("/add")
     @Transactional
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> create(@Valid @RequestBody GoodsReceiptNoteDTO goodsReceiptNoteDTO,Authentication authentication) throws UserNotFoundException, DeviceExistException,CategoryNotFoundException{
         String username = authentication.getName();
         User user = userRepository.findUserByUsername(username);
@@ -117,16 +115,18 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
 
     }
     @DeleteMapping("/delete")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> deleteById(@RequestParam Long id){
         goodsReceiptNoteRepository.deleteById(id);
         return new ResponseEntity(new MessageResponse("Delete succesfully"),HttpStatus.OK);
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateById(@RequestParam(value = "id") Long id, @Valid @RequestBody UpdateGoodsReceiptNoteRequest updateGoodsReceiptNoteRequest) throws HttpMessageNotReadableException, GoodsReceiptNoteException {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> updateById(@RequestParam(value = "id") Long id, @Valid @RequestBody UpdateGoodsReceiptNoteRequest updateGoodsReceiptNoteRequest) throws HttpMessageNotReadableException, GoodsReceiptNoteNotFoundException {
         Optional<GoodsReceiptNote> _goodsReceiptNote = goodsReceiptNoteRepository.findById(id);
         if(!_goodsReceiptNote.isPresent()){
-            throw new GoodsReceiptNoteException(id.toString());
+            throw new GoodsReceiptNoteNotFoundException(id.toString());
         } else {
             GoodsReceiptNote goodsReceiptNote = _goodsReceiptNote.get();
             goodsReceiptNote.setFullname(updateGoodsReceiptNoteRequest.getFullname());
@@ -137,10 +137,11 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
         }
     }
     @GetMapping("")
-    public ResponseEntity<?> getById(@RequestParam("id") Long id) throws GoodsReceiptNoteException{
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> getById(@RequestParam("id") Long id) throws GoodsReceiptNoteNotFoundException {
         Optional<GoodsReceiptNote> _goodsReceiptNote = goodsReceiptNoteRepository.findById(id);
         if(!_goodsReceiptNote.isPresent()){
-            throw new GoodsReceiptNoteException(id.toString());
+            throw new GoodsReceiptNoteNotFoundException(id.toString());
         } else {
             return new ResponseEntity(modelMapperService.mapObject(_goodsReceiptNote.get(),customMapper),HttpStatus.OK);
 
@@ -148,7 +149,8 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<GoodsReceiptNote>> getAllPhieuNhap(){
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<List<GoodsReceiptNote>> listAll(){
         try {
             List<GoodsReceiptNote> list = goodsReceiptNoteRepository.findAll();
             return new ResponseEntity(modelMapperService.mapList(list,customMapper),HttpStatus.OK);
@@ -158,7 +160,8 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
     }
 
     @GetMapping("/list-by-username")
-    public ResponseEntity<List<GoodsReceiptNote>> getByUsername(@RequestParam(value = "username") String username) throws UserNotFoundException {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<List<GoodsReceiptNote>> listByUsername(@RequestParam(value = "username") String username) throws UserNotFoundException {
         try {
             User user = userRepository.findUserByUsername(username);
             if(user==null){
@@ -172,7 +175,7 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
     }
 
     @GetMapping("/list-by-current-user")
-    public ResponseEntity<List<GoodsReceiptNoteResponse>> getByCurrentUser(Authentication authentication) throws UserNotFoundException {
+    public ResponseEntity<List<GoodsReceiptNoteResponse>> listByCurrentUser(Authentication authentication) throws UserNotFoundException {
         String username = authentication.getName();
         User user = userRepository.findUserByUsername(username);
         if(user==null){
@@ -183,6 +186,20 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
         }
     }
 
+    @GetMapping("/get-by-serial-device")
+    public ResponseEntity<GoodsReceiptNote> findBySerialDevice(@RequestParam String serial) throws DeviceNotFoundException, GoodsReceiptNoteNotFoundException {
+        Optional<Device> device = deviceRepository.findDeviceBySerial(serial);
+        if(!device.isPresent()){
+            throw new DeviceNotFoundException(serial);
+        }
+        Long id = device.get().getGoodsReceiptNote().getId();
+        Optional<GoodsReceiptNote> goodsReceiptNote = goodsReceiptNoteRepository.findById(id);
+        if(!goodsReceiptNote.isPresent()){
+            throw new GoodsReceiptNoteNotFoundException(id.toString());
+        }
+        return new ResponseEntity(modelMapperService.mapObject(goodsReceiptNote.get(),customMapper),HttpStatus.OK);
+
+    }
     public CustomMapper<GoodsReceiptNote, GoodsReceiptNoteResponse> customMapper = goodsReceiptNote -> {
         GoodsReceiptNoteResponse goodsReceiptNoteResponse = mapper.map(goodsReceiptNote,GoodsReceiptNoteResponse.class);
         goodsReceiptNoteResponse.setExporter(goodsReceiptNote.getUser().getUsername());

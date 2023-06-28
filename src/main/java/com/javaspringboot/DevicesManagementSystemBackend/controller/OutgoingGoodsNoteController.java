@@ -2,16 +2,15 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
-import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
-import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusDevice;
-import com.javaspringboot.DevicesManagementSystemBackend.payload.response.DeviceResponse;
-import com.javaspringboot.DevicesManagementSystemBackend.service.CustomMapperService;
-import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.OutgoingGoodsNoteDTO;
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusDevice;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.DeviceNotFoundException;
+import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.GoodsReceiptNoteNotFoundException;
+import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.OutgoingGoodsNoteNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
+import com.javaspringboot.DevicesManagementSystemBackend.model.GoodsReceiptNote;
 import com.javaspringboot.DevicesManagementSystemBackend.model.OutgoingGoodsNote;
 import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
@@ -19,17 +18,22 @@ import com.javaspringboot.DevicesManagementSystemBackend.payload.response.Outgoi
 import com.javaspringboot.DevicesManagementSystemBackend.repository.DeviceRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.OutgoingGoodsNoteRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
+import com.javaspringboot.DevicesManagementSystemBackend.service.CustomMapperService;
+import com.javaspringboot.DevicesManagementSystemBackend.service.ModelMapperService;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/phieuxuat")
@@ -57,8 +61,8 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
         this.mapper = mapper;
     }
 
-
     @PostMapping("/add")
+    @Transactional
     public ResponseEntity<?> create(@Valid @RequestBody OutgoingGoodsNoteDTO outgoingGoodsNoteDTO, Authentication authentication) throws UserNotFoundException, DeviceNotFoundException {
         User exporter = userRepository.findUserByUsername(authentication.getName());
         if(exporter==null){
@@ -87,7 +91,6 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
                 } else {
                     return new ResponseEntity(new HttpResponse(HttpStatus.BAD_REQUEST.value(),HttpStatus.BAD_REQUEST,"",String.format("Device %s has been exported",serial)),HttpStatus.BAD_REQUEST);
                 }
-
             }
         }
         outgoingGoodsNote.setDevices(devices);
@@ -96,8 +99,17 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteById(@RequestParam Long id){
-        outgoingGoodsNoteRepository.deleteById(id);
+    public ResponseEntity<?> deleteById(@RequestParam Long id) throws OutgoingGoodsNoteNotFoundException {
+        Optional<OutgoingGoodsNote> outgoingGoodsNote = outgoingGoodsNoteRepository.findById(id);
+        if(!outgoingGoodsNote.isPresent()){
+            throw new OutgoingGoodsNoteNotFoundException(id.toString());
+        }
+        OutgoingGoodsNote note = outgoingGoodsNote.get();
+        Set<Device> devices = note.getDevices();
+        List<Device> deviceList = devices.stream().map(device -> setNoOutgoingGoodsNote(device)).collect(Collectors.toList());
+        deviceRepository.saveAll(deviceList);
+        note.setDevices(null);
+        outgoingGoodsNoteRepository.delete(note);
         return new ResponseEntity(new MessageResponse("Delete succesfully"),HttpStatus.OK);
     }
 
@@ -113,6 +125,21 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
 
     }
 
+    @GetMapping("/get-by-serial-device")
+    public ResponseEntity<GoodsReceiptNote> findBySerialDevice(@RequestParam String serial) throws DeviceNotFoundException, GoodsReceiptNoteNotFoundException {
+        Optional<Device> device = deviceRepository.findDeviceBySerial(serial);
+        if(!device.isPresent()){
+            throw new DeviceNotFoundException(serial);
+        }
+        Long id = device.get().getOutgoingGoodsNote().getId();
+        Optional<OutgoingGoodsNote> outgoingGoodsNote = outgoingGoodsNoteRepository.findById(id);
+        if(!outgoingGoodsNote.isPresent()){
+            throw new GoodsReceiptNoteNotFoundException(id.toString());
+        }
+        return new ResponseEntity(modelMapperService.mapObject(outgoingGoodsNote.get(),customMapper),HttpStatus.OK);
+
+    }
+
     public CustomMapper<OutgoingGoodsNote, OutgoingGoodsNoteResponse> customMapper = outgoingGoodsNote -> {
         OutgoingGoodsNoteResponse outgoingGoodsNoteResponse = mapper.map(outgoingGoodsNote,OutgoingGoodsNoteResponse.class);
         outgoingGoodsNoteResponse.setExporter(outgoingGoodsNote.getExporter().getUsername());
@@ -120,4 +147,12 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
         outgoingGoodsNoteResponse.setDevices(customMapperService.mapSetDevice(outgoingGoodsNote.getDevices()));
         return outgoingGoodsNoteResponse;
     };
+
+    public Device setNoOutgoingGoodsNote(Device device){
+        device.setOutgoingGoodsNote(null);
+        device.setMaintenanceStatus(null);
+        device.setWarrantyStatus(null);
+        device.setStatus(EStatusDevice.TRONG_KHO);
+        return device;
+    }
 }

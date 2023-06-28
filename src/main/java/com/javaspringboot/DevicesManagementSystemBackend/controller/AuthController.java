@@ -2,10 +2,10 @@ package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.EmailExistException;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UsernameExistException;
-import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
 import com.javaspringboot.DevicesManagementSystemBackend.model.Role;
 import com.javaspringboot.DevicesManagementSystemBackend.model.User;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.LoginRequest;
@@ -26,7 +26,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,7 +36,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -47,7 +48,6 @@ import java.util.stream.Collectors;
 public class AuthController extends ExceptionHandling {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-
 
   @Autowired
   AuthenticationManager authenticationManager;
@@ -83,6 +83,8 @@ public class AuthController extends ExceptionHandling {
 
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
+    logger.info(String.format("Login attemps: %s",userDetails.getUsername()));
+
     String token = userService.createRefreshToken(userDetails.getId());
 
     ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
@@ -95,7 +97,7 @@ public class AuthController extends ExceptionHandling {
   }
 
   @PostMapping("/signup")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws InvalidFormatException,UsernameExistException, EmailExistException,HttpMessageNotReadableException {
+  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws UsernameExistException, EmailExistException,HttpMessageNotReadableException {
     if (userRepository.existsByUsername(signUpRequest.getUsername())) {
       throw new UsernameExistException("Username is already taken!");
     }

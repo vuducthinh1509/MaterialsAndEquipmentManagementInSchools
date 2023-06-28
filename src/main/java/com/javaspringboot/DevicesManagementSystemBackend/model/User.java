@@ -30,11 +30,9 @@ import java.util.Set;
 @AllArgsConstructor
 public class User implements Serializable {
 
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-  @Column(name="id")
   private Long id;
 
   @NotBlank
@@ -73,24 +71,24 @@ public class User implements Serializable {
 
   private Instant expiryRefreshToken;
 
-  @OneToMany(fetch = FetchType.EAGER,mappedBy = "exporter")
+  @OneToMany(mappedBy = "exporter")
   @JsonBackReference
   private Set<WarrantyCard> warrantyCards1;
 
-  @OneToMany(fetch = FetchType.EAGER,mappedBy = "receiver")
+  @OneToMany(mappedBy = "receiver")
   @JsonBackReference
   private Set<WarrantyCard> warrantyCards2;
 
-  @OneToMany(fetch = FetchType.EAGER,mappedBy = "exporter")
+  @OneToMany(mappedBy = "exporter")
   @JsonBackReference
   private Set<OutgoingGoodsNote> outgoingGoodsNotes1;
 
-  @OneToMany(fetch = FetchType.EAGER,mappedBy = "receiver")
+  @OneToMany(mappedBy = "receiver")
   @JsonBackReference
   private Set<OutgoingGoodsNote> outgoingGoodsNotes2;
 
   @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(name = "user_roles", 
+  @JoinTable(name = "user_roles",
              joinColumns = @JoinColumn(name = "user_id"),
              inverseJoinColumns = @JoinColumn(name = "role_id"))
   @JsonManagedReference
