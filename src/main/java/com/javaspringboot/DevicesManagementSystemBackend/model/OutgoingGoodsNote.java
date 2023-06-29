@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
 
@@ -22,7 +23,7 @@ public class OutgoingGoodsNote {
     private Long id;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
-    private Date exportDate;
+    private Instant createdAt;
 
     @ManyToOne
     @JoinColumn(name = "id_exporter", referencedColumnName = "id")
@@ -41,6 +42,6 @@ public class OutgoingGoodsNote {
     public OutgoingGoodsNote(User exporter, User receiver){
         this.exporter=exporter;
         this.receiver = receiver;
-        this.exportDate = new Date();
+        this.createdAt = Instant.now();
     }
 }

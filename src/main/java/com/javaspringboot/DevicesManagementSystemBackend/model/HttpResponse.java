@@ -1,4 +1,4 @@
-package com.javaspringboot.DevicesManagementSystemBackend.advice;
+package com.javaspringboot.DevicesManagementSystemBackend.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

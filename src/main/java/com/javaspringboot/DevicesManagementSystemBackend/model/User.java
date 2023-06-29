@@ -58,7 +58,7 @@ public class User implements Serializable {
   @NotBlank
   private String phone;
 
-  private Date joinDate;
+  private Instant joinDate;
 
   @NotBlank
   private String tenVien;
@@ -104,7 +104,7 @@ public class User implements Serializable {
     this.fullname = fullname;
     this.birthDate = birthDate;
     this.phone = phone;
-    this.joinDate = new Date();
+    this.joinDate = Instant.now();
     this.tenVien = tenVien;
     this.tenPhong = tenPhong;
     this.tenBan = tenBan;

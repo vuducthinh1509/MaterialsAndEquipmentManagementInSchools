@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +22,7 @@ public class GoodsReceiptNoteResponse {
     private String companyName;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date export_date;
+    private Instant export_date;
 
     private String exporter;
 

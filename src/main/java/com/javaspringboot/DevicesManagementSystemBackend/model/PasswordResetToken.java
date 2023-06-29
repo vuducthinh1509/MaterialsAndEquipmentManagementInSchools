@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -27,15 +29,15 @@ public class PasswordResetToken {
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
-    private Date expiryDate;
+    private Instant expiryDate;
 
     public PasswordResetToken(String token, User user){
         this.token = token;
         this.user = user;
-        Date currentDate = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(currentDate);
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        this.expiryDate = calendar.getTime();
+//        Date currentDate = new Date();
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(currentDate);
+//        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        this.expiryDate = Instant.now().plus(1, ChronoUnit.DAYS);
     }
 }

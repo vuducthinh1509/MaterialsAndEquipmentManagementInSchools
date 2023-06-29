@@ -34,7 +34,6 @@ public class SignupRequest {
     private Date birthDate;
     @NotEmpty
     private String phone;
-    private Date joinDate;
     @NotBlank
     private String tenVien;
 

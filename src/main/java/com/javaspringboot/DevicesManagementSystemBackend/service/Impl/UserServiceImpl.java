@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String refreshToken(Long id) {
+    public String createNewRefreshToken(Long id) {
         Optional<User> userOpt = userRepository.findById(id);
         if(userOpt.isPresent()){
             User user = userOpt.get();

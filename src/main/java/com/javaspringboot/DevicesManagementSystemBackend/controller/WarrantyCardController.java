@@ -1,7 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
-import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.model.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.WarrantyCardDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EConfirmStatus;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusWarranty;
@@ -119,6 +119,13 @@ public class WarrantyCardController extends ExceptionHandling {
         return new ResponseEntity(modelMapperService.mapList(warrantyCardList,customMapper),HttpStatus.OK);
     }
 
+    @GetMapping("/list-unconfirm")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<List<WarrantyCard>> listUnconfirm(){
+        List<WarrantyCard> warrantyCardList = warrantyCardRepository.listByStatusUnconfirm();
+        return new ResponseEntity(modelMapperService.mapList(warrantyCardList,customMapper),HttpStatus.OK);
+    }
+
     // Tìm theo id
     @GetMapping("")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
@@ -130,12 +137,18 @@ public class WarrantyCardController extends ExceptionHandling {
     // Xóa theo id
     @DeleteMapping("/delete")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    public ResponseEntity<?> deleteById(@Valid @RequestParam Long id) throws WarrantyCardNotFoundException{
-        warrantyCardRepository.deleteById(id);
-        return new ResponseEntity(new MessageResponse("Delete succesfully"),HttpStatus.OK);
+    public ResponseEntity<?> deleteById(@Valid @RequestParam Long id){
+        Optional<WarrantyCard> warrantyCard = warrantyCardRepository.findById(id);
+        WarrantyCard warrantyCard1 = warrantyCard.get();
+        if(warrantyCard1.getConfirmStatus().equals(EConfirmStatus.CHUA_XAC_NHAN)){
+            warrantyCardRepository.delete(warrantyCard1);
+            return new ResponseEntity(new MessageResponse("Delete succesfully"),HttpStatus.OK);
+        } else {
+            return new ResponseEntity(new MessageResponse("Delete failed"),HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @GetMapping("/listbyserialdevice")
+    @GetMapping("/list-by-serial-device")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> getBySerialDevice(@Valid @RequestParam String serial) throws DeviceNotFoundException {
         Optional<Device> device = deviceRepository.findDeviceBySerial(serial);
@@ -146,7 +159,7 @@ public class WarrantyCardController extends ExceptionHandling {
         return new ResponseEntity<>(modelMapperService.mapList(warrantyCardList,customMapper),HttpStatus.OK);
     }
 
-    @GetMapping("/listbyreceiver")
+    @GetMapping("/list-by-receiver")
     public ResponseEntity<?> getByReceiver(@Valid @RequestParam String username) throws UserNotFoundException {
         User user = userRepository.findUserByUsername(username);
         if(user==null){

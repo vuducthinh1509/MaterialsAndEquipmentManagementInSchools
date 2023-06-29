@@ -11,5 +11,5 @@ public interface UserService {
 
     boolean verifyExpiration(User user);
 
-    String refreshToken(Long id);
+    String createNewRefreshToken(Long id);
 }

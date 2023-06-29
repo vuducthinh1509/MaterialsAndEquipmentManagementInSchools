@@ -1,4 +1,4 @@
-package com.javaspringboot.DevicesManagementSystemBackend.advice;
+package com.javaspringboot.DevicesManagementSystemBackend.configuration;
 
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;

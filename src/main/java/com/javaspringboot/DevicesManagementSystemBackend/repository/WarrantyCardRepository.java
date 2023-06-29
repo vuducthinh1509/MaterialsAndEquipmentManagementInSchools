@@ -13,4 +13,6 @@ public interface WarrantyCardRepository extends JpaRepository<WarrantyCard,Long>
 
     @Query(value = "select * from warranty_card wc  where wc.id_receiver = ?1",nativeQuery = true)
     List<WarrantyCard> findWarrantyCardByReceiverId(Long id);
+    @Query(value = "select * from warranty_card wc  where wc.confirm_status = 'CHUA_XAC_NHAN'",nativeQuery = true)
+    List<WarrantyCard> listByStatusUnconfirm();
 }

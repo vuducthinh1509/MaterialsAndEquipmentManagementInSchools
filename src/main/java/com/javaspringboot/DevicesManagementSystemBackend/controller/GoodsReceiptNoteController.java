@@ -1,7 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
-import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.model.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.DeviceDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.GoodsReceiptNoteDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
@@ -203,7 +203,7 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
     public CustomMapper<GoodsReceiptNote, GoodsReceiptNoteResponse> customMapper = goodsReceiptNote -> {
         GoodsReceiptNoteResponse goodsReceiptNoteResponse = mapper.map(goodsReceiptNote,GoodsReceiptNoteResponse.class);
         goodsReceiptNoteResponse.setExporter(goodsReceiptNote.getUser().getUsername());
-        goodsReceiptNoteResponse.setExport_date(goodsReceiptNote.getDate());
+        goodsReceiptNoteResponse.setExport_date(goodsReceiptNote.getCreatedAt());
         goodsReceiptNoteResponse.setDevices(customMapperService.mapListDevice(goodsReceiptNote.getDevices()));
         return goodsReceiptNoteResponse;
     };

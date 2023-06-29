@@ -1,7 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
-import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.model.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.OutgoingGoodsNoteDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusDevice;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
@@ -24,6 +24,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -63,6 +64,7 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
 
     @PostMapping("/add")
     @Transactional
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> create(@Valid @RequestBody OutgoingGoodsNoteDTO outgoingGoodsNoteDTO, Authentication authentication) throws UserNotFoundException, DeviceNotFoundException {
         User exporter = userRepository.findUserByUsername(authentication.getName());
         if(exporter==null){
@@ -99,6 +101,7 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
     }
 
     @DeleteMapping("/delete")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> deleteById(@RequestParam Long id) throws OutgoingGoodsNoteNotFoundException {
         Optional<OutgoingGoodsNote> outgoingGoodsNote = outgoingGoodsNoteRepository.findById(id);
         if(!outgoingGoodsNote.isPresent()){
@@ -114,11 +117,13 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
     }
 
     @GetMapping("/list")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<OutgoingGoodsNote>> findAll(){
         List<OutgoingGoodsNote> outgoingGoodsNotes = outgoingGoodsNoteRepository.findAll();
         return new ResponseEntity(modelMapperService.mapList(outgoingGoodsNotes,customMapper),HttpStatus.OK);
     }
     @GetMapping()
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> findById(@RequestParam Long id){
         Optional<OutgoingGoodsNote> outgoingGoodsNote = outgoingGoodsNoteRepository.findById(id);
         return new ResponseEntity(modelMapperService.mapObject(outgoingGoodsNote.get(),customMapper),HttpStatus.OK);
@@ -126,6 +131,7 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
     }
 
     @GetMapping("/get-by-serial-device")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<GoodsReceiptNote> findBySerialDevice(@RequestParam String serial) throws DeviceNotFoundException, GoodsReceiptNoteNotFoundException {
         Optional<Device> device = deviceRepository.findDeviceBySerial(serial);
         if(!device.isPresent()){
@@ -140,11 +146,18 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
 
     }
 
+    @GetMapping("/list-by-current-user")
+    public ResponseEntity<List<OutgoingGoodsNote>> listByCurrentUser(Authentication authentication) {
+        List<OutgoingGoodsNote> list = outgoingGoodsNoteRepository.findByUsername(authentication.getName());
+        return new ResponseEntity(modelMapperService.mapList(list,customMapper),HttpStatus.OK);
+    }
+
     public CustomMapper<OutgoingGoodsNote, OutgoingGoodsNoteResponse> customMapper = outgoingGoodsNote -> {
         OutgoingGoodsNoteResponse outgoingGoodsNoteResponse = mapper.map(outgoingGoodsNote,OutgoingGoodsNoteResponse.class);
         outgoingGoodsNoteResponse.setExporter(outgoingGoodsNote.getExporter().getUsername());
         outgoingGoodsNoteResponse.setReceiver(outgoingGoodsNote.getReceiver().getUsername());
         outgoingGoodsNoteResponse.setDevices(customMapperService.mapSetDevice(outgoingGoodsNote.getDevices()));
+        outgoingGoodsNoteResponse.setExportDate(outgoingGoodsNote.getCreatedAt());
         return outgoingGoodsNoteResponse;
     };
 

@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class GoodsReceiptNote {
     @NotBlank
     private String companyName;
 
-    private Date date;
+    private Instant createdAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
@@ -41,7 +42,7 @@ public class GoodsReceiptNote {
         this.fullname = fullname;
         this.phone = phone;
         this.companyName = companyName;
-        this.date = new Date();
+        this.createdAt = Instant.now();
     }
 
 }

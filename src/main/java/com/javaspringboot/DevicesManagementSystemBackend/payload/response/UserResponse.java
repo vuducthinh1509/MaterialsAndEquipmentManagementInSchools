@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.text.DateFormat;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class UserResponse {
     private String phone;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date joinDate;
+    private Instant joinDate;
 
     private String tenVien;
 

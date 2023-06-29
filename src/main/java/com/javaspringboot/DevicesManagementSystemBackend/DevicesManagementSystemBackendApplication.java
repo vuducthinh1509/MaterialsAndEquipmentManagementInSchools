@@ -1,29 +1,22 @@
 package com.javaspringboot.DevicesManagementSystemBackend;
 
-import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
-import com.javaspringboot.DevicesManagementSystemBackend.model.Role;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.RoleRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
 
 @SpringBootApplication
 @EnableScheduling
 public class DevicesManagementSystemBackendApplication implements CommandLineRunner {
 
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private RoleRepository roleRepository;
@@ -35,7 +28,7 @@ public class DevicesManagementSystemBackendApplication implements CommandLineRun
 	public void run(String... args) throws Exception {
 //		roleRepository.save(new Role(ERole.ROLE_ADMIN));
 //		roleRepository.save(new Role(ERole.ROLE_USER));
-		System.out.println("Hello, thinhdz");
+		logger.info("Hi thinhdz");
 	}
 
 	@Bean

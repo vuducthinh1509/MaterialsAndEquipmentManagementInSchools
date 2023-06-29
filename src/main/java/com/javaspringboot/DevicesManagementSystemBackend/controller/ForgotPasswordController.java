@@ -1,7 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 
-import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.model.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.PasswordDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.model.PasswordResetToken;
@@ -66,7 +66,7 @@ public class ForgotPasswordController {
                 "<body>\n" +
                 "<p>Hello %s,</p>\n" +
                 "<p>Please click below to reset your password.</p>\n" +
-                "<p><a href=\"http://localhost:8080/api/changePassword?token=%s\">Click here</a></p>\n" +
+                "<p><a href=\"http://localhost:3000/resetPassword?token=%s\">Click here</a></p>\n" +
                 "<p>The above link is valid only for <strong>24 Hours</strong>.</p>\n" +
                 "<p>If you did not ask to reset your password, please ignore this message.</p>" +
                 "<p>Thank you.</p>\n" +

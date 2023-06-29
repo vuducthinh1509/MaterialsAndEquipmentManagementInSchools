@@ -1,7 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.model.HttpResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;

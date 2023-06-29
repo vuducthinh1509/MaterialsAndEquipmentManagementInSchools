@@ -1,7 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.model.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.*;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.token.TokenRefreshException;
 import org.slf4j.Logger;

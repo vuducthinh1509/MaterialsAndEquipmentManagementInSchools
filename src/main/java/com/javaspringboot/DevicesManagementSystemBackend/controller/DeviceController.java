@@ -1,7 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
-import com.javaspringboot.DevicesManagementSystemBackend.advice.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.model.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusDevice;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
@@ -127,7 +127,7 @@ public class DeviceController extends ExceptionHandling {
     }
 
     @GetMapping("/list-by-category-name")
-    public ResponseEntity<Set<DeviceResponse>> listByCategoryName(@RequestParam(required = true) String categoryName){
+    public ResponseEntity<Set<DeviceResponse>> listByCategoryName(@RequestParam String categoryName){
         List<Category> categories = categoryRepository.findCategoriesByName(categoryName);
         List<Device> devices = new ArrayList<>();
         for(Category category : categories){

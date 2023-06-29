@@ -1,4 +1,4 @@
-package com.javaspringboot.DevicesManagementSystemBackend.security;
+package com.javaspringboot.DevicesManagementSystemBackend.configuration;
 
 import com.javaspringboot.DevicesManagementSystemBackend.security.jwt.JwtAccessDeniedHandler;
 import com.javaspringboot.DevicesManagementSystemBackend.security.jwt.JwtAuthenticationEntryPoint;
@@ -25,7 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
 
-  String[] forgotPasswordList = new String[]{"/api/resetPassword","/api/changePassword","/api/savePassword"};
+  String[] forgotPasswordList = new String[]{"/api/resetPassword","/api/verifyToken","/api/savePassword"};
 
   @Autowired
   UserDetailsServiceImpl userDetailsService;

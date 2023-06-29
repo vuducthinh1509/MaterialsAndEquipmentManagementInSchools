@@ -36,6 +36,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -87,7 +89,7 @@ public class AuthController extends ExceptionHandling {
 
     String token = userService.createRefreshToken(userDetails.getId());
 
-    ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+    ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails.getUser());
 
     ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(token);
     return ResponseEntity.ok()
@@ -151,20 +153,24 @@ public class AuthController extends ExceptionHandling {
   @PostMapping("/refreshtoken")
   public ResponseEntity<?> refreshtoken(HttpServletRequest request) {
     String refreshToken = jwtUtils.getJwtRefreshFromCookies(request);
-
-    if(refreshToken.length()!=36){
+    Instant currentTime = Instant.now();
+    if(refreshToken == null || refreshToken.length()!=36){
       return ResponseEntity.badRequest().body(new MessageResponse("Invalid Refresh Token format"));
     }
     User user = userService.findByRefreshToken(refreshToken);
+    long secondsDiff = Duration.between(currentTime, user.getExpiryRefreshToken()).getSeconds();
     if(user==null){
       return ResponseEntity.badRequest().body(new MessageResponse("Refresh token is not in database!"));
     }
     if(userService.verifyExpiration(user)){
       return ResponseEntity.badRequest().body(new MessageResponse("Refresh token was expired. Please make a new signin request"));
     } else {
+      String token = userService.createNewRefreshToken(user.getId());
+      ResponseCookie jwtRefreshCookie = jwtUtils.generateNewRefreshJwtCookie(token,secondsDiff);
       ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(user);
       return ResponseEntity.ok()
               .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+              .header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
               .body(new MessageResponse("Token is refreshed successfully!"));
     }
   }

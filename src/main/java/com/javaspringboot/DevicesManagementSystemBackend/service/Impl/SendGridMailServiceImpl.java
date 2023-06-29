@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Calendar;
 
 @Service
@@ -84,8 +85,8 @@ public class SendGridMailServiceImpl implements SendGridMailService {
     }
 
     private boolean isTokenExpired(PasswordResetToken passToken) {
-        final Calendar cal = Calendar.getInstance();
-        return passToken.getExpiryDate().before(cal.getTime());
+//        final Calendar cal = Calendar.getInstance();
+        return passToken.getExpiryDate().isBefore(Instant.now());
     }
 
     public void changeUserPassword(User user, String password) {

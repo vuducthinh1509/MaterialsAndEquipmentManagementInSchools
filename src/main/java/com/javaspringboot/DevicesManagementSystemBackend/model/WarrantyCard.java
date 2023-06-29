@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.Date;
 
 @Entity
@@ -23,7 +24,7 @@ public class WarrantyCard {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Date date;
+    private Instant createAt;
 
     @Enumerated(EnumType.STRING)
     private EStatusWarranty status;
@@ -58,6 +59,6 @@ public class WarrantyCard {
         this.receiver = receiver;
         this.device = device;
         this.confirmStatus = EConfirmStatus.CHUA_XAC_NHAN;
-        this.date = new Date();
+        this.createAt = Instant.now();
     }
 }
