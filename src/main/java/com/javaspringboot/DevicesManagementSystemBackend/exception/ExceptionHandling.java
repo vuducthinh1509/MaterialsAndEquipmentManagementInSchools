@@ -62,6 +62,8 @@ public class ExceptionHandling implements ErrorController {
 
     private static final String USER_NOT_FOUND_WITH_USERNAME = "No found user with username %s";
 
+    private static final String NOTIFICATION_NOT_FOUND = "No warranty card with id %s";
+
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<HttpResponse> badCredentialsException(BadCredentialsException exception) {
@@ -127,6 +129,12 @@ public class ExceptionHandling implements ErrorController {
     public ResponseEntity<HttpResponse> warrantyCardNotFoundException(WarrantyCardNotFoundException exception) {
         LOGGER.warn(String.format(WARRANTY_CARD_NOT_FOUND,exception.getMessage()));
         return createHttpResponse(NOT_FOUND, String.format(WARRANTY_CARD_NOT_FOUND,exception.getLocalizedMessage()));
+    }
+
+    @ExceptionHandler(NotificationNotFoundException.class)
+    public ResponseEntity<HttpResponse> notificationNotFoundException(NotificationNotFoundException exception) {
+        LOGGER.warn(String.format(NOTIFICATION_NOT_FOUND,exception.getMessage()));
+        return createHttpResponse(NOT_FOUND, String.format(NOTIFICATION_NOT_FOUND,exception.getLocalizedMessage()));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)

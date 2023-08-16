@@ -109,11 +109,11 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
         }
         OutgoingGoodsNote note = outgoingGoodsNote.get();
         Set<Device> devices = note.getDevices();
-        List<Device> deviceList = devices.stream().map(device -> setNoOutgoingGoodsNote(device)).collect(Collectors.toList());
+        List<Device> deviceList = devices.stream().map(Device::removeOutgoingGoodsNote).collect(Collectors.toList());
         deviceRepository.saveAll(deviceList);
         note.setDevices(null);
         outgoingGoodsNoteRepository.delete(note);
-        return new ResponseEntity(new MessageResponse("Delete succesfully"),HttpStatus.OK);
+        return new ResponseEntity(new MessageResponse("Delete succesfully1"),HttpStatus.OK);
     }
 
     @GetMapping("/list")
@@ -161,11 +161,11 @@ public class OutgoingGoodsNoteController extends ExceptionHandling {
         return outgoingGoodsNoteResponse;
     };
 
-    public Device setNoOutgoingGoodsNote(Device device){
-        device.setOutgoingGoodsNote(null);
-        device.setMaintenanceStatus(null);
-        device.setWarrantyStatus(null);
-        device.setStatus(EStatusDevice.TRONG_KHO);
-        return device;
-    }
+//    public Device setNoOutgoingGoodsNote(Device device){
+//        device.setOutgoingGoodsNote(null);
+//        device.setMaintenanceStatus(null);
+//        device.setWarrantyStatus(null);
+//        device.setStatus(EStatusDevice.TRONG_KHO);
+//        return device;
+//    }
 }

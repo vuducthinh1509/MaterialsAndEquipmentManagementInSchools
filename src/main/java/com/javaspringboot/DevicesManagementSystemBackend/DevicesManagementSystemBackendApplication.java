@@ -1,5 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend;
 
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
+import com.javaspringboot.DevicesManagementSystemBackend.model.Role;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.RoleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
 package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
-import com.javaspringboot.DevicesManagementSystemBackend.model.HttpResponse;
+import com.javaspringboot.DevicesManagementSystemBackend.model.*;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.WarrantyCardDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EConfirmStatus;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusWarranty;
@@ -9,12 +9,10 @@ import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHand
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.DeviceNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.UserNotFoundException;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.domain.WarrantyCardNotFoundException;
-import com.javaspringboot.DevicesManagementSystemBackend.model.Device;
-import com.javaspringboot.DevicesManagementSystemBackend.model.User;
-import com.javaspringboot.DevicesManagementSystemBackend.model.WarrantyCard;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.request.WarrantyCardRequest;
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.DeviceRepository;
+import com.javaspringboot.DevicesManagementSystemBackend.repository.NotificationRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.UserRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.WarrantyCardRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.service.CustomMapperService;
@@ -32,6 +30,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static com.javaspringboot.DevicesManagementSystemBackend.enumm.ETypeNotification.ADMIN_TO_SPECIFIC;
+import static com.javaspringboot.DevicesManagementSystemBackend.enumm.ETypeNotification.USER_TO_ADMIN;
+
 @RequestMapping("/api/warrantycard")
 @CrossOrigin(origins = "http://localhost:3000",maxAge = 3600,allowCredentials = "true")
 @RestController
@@ -48,6 +49,9 @@ public class WarrantyCardController extends ExceptionHandling {
 
     @Autowired
     private WarrantyCardRepository warrantyCardRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -70,6 +74,9 @@ public class WarrantyCardController extends ExceptionHandling {
             return new ResponseEntity<>(new HttpResponse(HttpStatus.BAD_REQUEST.value(),HttpStatus.BAD_REQUEST,"BAD_REQUEST","Device has not been exported"),HttpStatus.BAD_REQUEST);
         }
         WarrantyCard warrantyCard = new WarrantyCard(warrantyCardRequest.getNote(),receiver,device);
+        String message = String.format("Yêu cầu bảo hành thiết bị %s từ người dùng %s",device.getSerial(),receiver.getUsername());
+        Notification notification = new Notification(message,USER_TO_ADMIN,receiver);
+        notificationRepository.save(notification);
         warrantyCardRepository.save(warrantyCard);
         return new ResponseEntity(new MessageResponse("Claim successful"), HttpStatus.CREATED);
     }
@@ -92,6 +99,9 @@ public class WarrantyCardController extends ExceptionHandling {
         card.setConfirmer(user);
         card.setStatus(EStatusWarranty.DANG_BAO_HANH);
         card.setConfirmStatus(EConfirmStatus.DA_XAC_NHAN);
+        String message = String.format("Phiếu bảo hành số %d của thiết bị %s được xác nhận",card.getId(),card.getDevice().getSerial());
+        Notification notification = new Notification(message,ADMIN_TO_SPECIFIC,card.getReceiver());
+        notificationRepository.save(notification);
         warrantyCardRepository.save(card);
         return new ResponseEntity(new MessageResponse("Confirm successfully"), HttpStatus.OK);
     }
@@ -109,6 +119,9 @@ public class WarrantyCardController extends ExceptionHandling {
         card.setConfirmer(user);
         card.setConfirmStatus(EConfirmStatus.TU_CHOI);
         warrantyCardRepository.save(card);
+        String message = String.format("Phiếu bảo hành số %d của thiết bị %s bị từ chối",card.getId(),card.getDevice().getSerial());
+        Notification notification = new Notification(message,ADMIN_TO_SPECIFIC,card.getReceiver());
+        notificationRepository.save(notification);
         return new ResponseEntity(new MessageResponse("Denied successfully"), HttpStatus.OK);
     }
 

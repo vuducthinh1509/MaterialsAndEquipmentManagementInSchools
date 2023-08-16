@@ -60,7 +60,7 @@ public class Device {
     @JsonBackReference
     private GoodsReceiptNote goodsReceiptNote;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="outgoingGoodsNote_id")
     @JsonBackReference
     private OutgoingGoodsNote outgoingGoodsNote;
@@ -69,14 +69,6 @@ public class Device {
     @JsonBackReference
     private Set<WarrantyCard> warrantyCards;
 
-    @PreRemove
-    private void preRemove() {
-        outgoingGoodsNote = null;
-        status = EStatusDevice.TRONG_KHO;
-        maintenanceStatus = null;
-        warrantyStatus = null;
-    }
-
     public Device(String name,String serial,Integer price,Long warrantyTime,Long maintenanceTime){
         this.status = EStatusDevice.TRONG_KHO;
         this.name = name;
@@ -84,5 +76,13 @@ public class Device {
         this.price = price;
         this.warrantyTime = warrantyTime;
         this.maintenanceTime = maintenanceTime;
+    }
+
+    public Device removeOutgoingGoodsNote(){
+        this.setOutgoingGoodsNote(null);
+        this.setMaintenanceStatus(null);
+        this.setWarrantyStatus(null);
+        this.setStatus(EStatusDevice.TRONG_KHO);
+        return this;
     }
 }
