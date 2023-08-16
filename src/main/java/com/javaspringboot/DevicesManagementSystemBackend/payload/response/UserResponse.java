@@ -38,5 +38,7 @@ public class UserResponse {
 
     private String tenBan;
 
+    private boolean isEnabled;
+
     private List<ERole> roles;
 }

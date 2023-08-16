@@ -1,6 +1,8 @@
 package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusMaintenance;
+import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusWarranty;
 import com.javaspringboot.DevicesManagementSystemBackend.model.HttpResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.dto.CategoryDTO;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.EStatusDevice;
@@ -135,6 +137,23 @@ public class DeviceController extends ExceptionHandling {
             devices.addAll(deviceList);
         }
         return new ResponseEntity(customMapperService.mapListDevice(devices), HttpStatus.OK);
+    }
+
+    @GetMapping("/confirm-maintance")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> changeMaintanceStatus(@RequestParam String serial) throws DeviceNotFoundException{
+        Optional<Device> deviceOpt = deviceRepository.findDeviceBySerial(serial);
+        if(!deviceOpt.isPresent()){
+            throw new DeviceNotFoundException(serial);
+        }
+        Device device = deviceOpt.get();
+        if(device.getMaintenanceStatus().ordinal()==0){
+            device.setMaintenanceStatus(EStatusMaintenance.DA_BAO_TRI);
+            deviceRepository.save(device);
+            return new ResponseEntity(new MessageResponse("Confirm maintenance successfully"), HttpStatus.OK);
+        } else {
+            return new ResponseEntity(new MessageResponse("Confirm maintenance failed"), HttpStatus.OK);
+        }
     }
 
     public CustomMapper<Device, DeviceResponse> customMapper = device -> {

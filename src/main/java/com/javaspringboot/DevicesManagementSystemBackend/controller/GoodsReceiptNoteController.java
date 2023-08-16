@@ -175,6 +175,7 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
     }
 
     @GetMapping("/list-by-current-user")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<GoodsReceiptNoteResponse>> listByCurrentUser(Authentication authentication) throws UserNotFoundException {
         String username = authentication.getName();
         User user = userRepository.findUserByUsername(username);
@@ -187,6 +188,7 @@ public class GoodsReceiptNoteController extends ExceptionHandling {
     }
 
     @GetMapping("/get-by-serial-device")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<GoodsReceiptNote> findBySerialDevice(@RequestParam String serial) throws DeviceNotFoundException, GoodsReceiptNoteNotFoundException {
         Optional<Device> device = deviceRepository.findDeviceBySerial(serial);
         if(!device.isPresent()){

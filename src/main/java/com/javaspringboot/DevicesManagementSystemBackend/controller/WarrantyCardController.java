@@ -173,10 +173,21 @@ public class WarrantyCardController extends ExceptionHandling {
     }
 
     @GetMapping("/list-by-receiver")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> getByReceiver(@Valid @RequestParam String username) throws UserNotFoundException {
         User user = userRepository.findUserByUsername(username);
         if(user==null){
             throw new UserNotFoundException(username);
+        }
+        List<WarrantyCard> warrantyCardList = warrantyCardRepository.findWarrantyCardByReceiverId(user.getId());
+        return new ResponseEntity<>(modelMapperService.mapList(warrantyCardList,customMapper),HttpStatus.OK);
+    }
+
+    @GetMapping("/list-by-current-user")
+    public ResponseEntity<?> getByReceiver(Authentication authentication) throws UserNotFoundException {
+        User user = userRepository.findUserByUsername(authentication.getName());
+        if(user==null){
+            throw new UserNotFoundException(authentication.getName());
         }
         List<WarrantyCard> warrantyCardList = warrantyCardRepository.findWarrantyCardByReceiverId(user.getId());
         return new ResponseEntity<>(modelMapperService.mapList(warrantyCardList,customMapper),HttpStatus.OK);

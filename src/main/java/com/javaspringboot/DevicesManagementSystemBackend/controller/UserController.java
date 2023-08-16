@@ -77,9 +77,6 @@ public class UserController extends ExceptionHandling {
             } else {
                 return new  ResponseEntity(new MessageResponse("Disable succesfully"), OK);
             }
-
-
-
     }
 
     @GetMapping("/list")
