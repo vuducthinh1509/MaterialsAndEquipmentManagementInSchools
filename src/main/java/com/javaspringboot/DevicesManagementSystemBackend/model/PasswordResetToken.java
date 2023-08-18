@@ -20,7 +20,7 @@ public class PasswordResetToken {
     private static final int EXPIRATION = 60 * 24;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String token;
@@ -34,10 +34,6 @@ public class PasswordResetToken {
     public PasswordResetToken(String token, User user){
         this.token = token;
         this.user = user;
-//        Date currentDate = new Date();
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(currentDate);
-//        calendar.add(Calendar.DAY_OF_YEAR, 1);
         this.expiryDate = Instant.now().plus(1, ChronoUnit.DAYS);
     }
 }

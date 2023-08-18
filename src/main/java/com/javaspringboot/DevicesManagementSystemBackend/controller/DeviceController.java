@@ -14,6 +14,7 @@ import com.javaspringboot.DevicesManagementSystemBackend.payload.response.Device
 import com.javaspringboot.DevicesManagementSystemBackend.payload.response.MessageResponse;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.CategoryRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.DeviceRepository;
+import com.javaspringboot.DevicesManagementSystemBackend.repository.NotificationRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.repository.OutgoingGoodsNoteRepository;
 import com.javaspringboot.DevicesManagementSystemBackend.service.CustomMapperService;
 import com.javaspringboot.DevicesManagementSystemBackend.service.DeviceService;
@@ -32,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.javaspringboot.DevicesManagementSystemBackend.enumm.ETypeNotification.ADMIN_TO_SPECIFIC;
 
 @CrossOrigin(origins = "http://localhost:3000",maxAge = 3600,allowCredentials = "true")
 @RequestMapping("/api/device")
@@ -55,6 +58,9 @@ public class DeviceController extends ExceptionHandling {
 
     @Autowired
     private OutgoingGoodsNoteRepository outgoingGoodsNoteRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @GetMapping("/list")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
@@ -150,6 +156,9 @@ public class DeviceController extends ExceptionHandling {
         if(device.getMaintenanceStatus().ordinal()==0){
             device.setMaintenanceStatus(EStatusMaintenance.DA_BAO_TRI);
             deviceRepository.save(device);
+            String message = String.format("Thiết bị %s đã hoàn tất bảo trì",device.getSerial());
+            Notification notification = new Notification(message,ADMIN_TO_SPECIFIC,device.getOutgoingGoodsNote().getReceiver());
+            notificationRepository.save(notification);
             return new ResponseEntity(new MessageResponse("Confirm maintenance successfully"), HttpStatus.OK);
         } else {
             return new ResponseEntity(new MessageResponse("Confirm maintenance failed"), HttpStatus.OK);

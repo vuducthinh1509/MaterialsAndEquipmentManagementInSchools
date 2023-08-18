@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
@@ -23,13 +24,16 @@ public class OutgoingGoodsNote {
     private Long id;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
+    @NotNull
     private Instant createdAt;
 
     @ManyToOne
     @JoinColumn(name = "id_exporter", referencedColumnName = "id")
+    @NotNull
     @JsonManagedReference
     private User exporter;
     @ManyToOne
+    @NotNull
     @JoinColumn(name = "id_receiver", referencedColumnName = "id")
     @JsonManagedReference
     private User receiver;
