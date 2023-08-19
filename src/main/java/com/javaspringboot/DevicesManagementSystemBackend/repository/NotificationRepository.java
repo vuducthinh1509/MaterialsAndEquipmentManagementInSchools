@@ -14,6 +14,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query(value = "SELECT * from notification where user_id = ?1 and type = 'ADMIN_TO_SPECIFIC' ORDER BY created_at DESC ",nativeQuery = true)
     List<Notification> getAllByUserId(Long id);
 
-    @Query(value = "SELECT * from notification where is_read = false and type = 'USER_TO_ADMIN'",nativeQuery = true)
+    @Query(value = "SELECT * from notification where type = 'USER_TO_ADMIN' ORDER BY created_at DESC",nativeQuery = true)
     List<Notification> getAllNotificationByAdmin();
 }

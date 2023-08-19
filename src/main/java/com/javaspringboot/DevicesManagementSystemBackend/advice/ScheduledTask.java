@@ -47,9 +47,11 @@ public class ScheduledTask {
             Set<Device> devices = item.getDevices();
             for(Device device : devices){
                 long differenceInSeconds = (timestamp1 - timestamp2) / 1000 % (device.getMaintenanceTime()/12*365*24*60*60);
-                if(differenceInSeconds < 24*60*60 && device.getMaintenanceStatus().ordinal()!=0){
+                if(differenceInSeconds < 24*60*60){
                     device.setMaintenanceStatus(EStatusMaintenance.CAN_BAO_TRI);
                     deviceRepository.save(device);
+                }
+                if(device.getMaintenanceStatus()!=null && device.getMaintenanceStatus().ordinal()!=0){
                     String message = String.format("Thiết bị %s cần được bảo trì",device.getSerial());
                     Notification notification = new Notification(message,ADMIN_TO_SPECIFIC,device.getOutgoingGoodsNote().getReceiver());
                     notificationRepository.save(notification);

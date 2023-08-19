@@ -10,13 +10,14 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.Date;
 
 @Data
 public class WarrantyCardDTO {
     private Long id;
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss")
-    private Date date;
+    private Instant createAt;
 
     private String status;
 

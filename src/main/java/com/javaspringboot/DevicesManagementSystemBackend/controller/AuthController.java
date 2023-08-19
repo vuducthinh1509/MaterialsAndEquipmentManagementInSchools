@@ -1,6 +1,5 @@
 package com.javaspringboot.DevicesManagementSystemBackend.controller;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.javaspringboot.DevicesManagementSystemBackend.advice.CustomMapper;
 import com.javaspringboot.DevicesManagementSystemBackend.enumm.ERole;
 import com.javaspringboot.DevicesManagementSystemBackend.exception.ExceptionHandling;
