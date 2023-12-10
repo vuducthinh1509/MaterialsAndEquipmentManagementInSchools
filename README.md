@@ -1,4 +1,4 @@
-DevicesManagementSystemBackend - Backend: Quản Lý Thiết Bị Trong Trường Học
+MaterialsAndEquipmentManagementInSchools - Backend: Quản Lý Thiết Bị Trong Trường Học
 
 Mục tiêu: Xây dựng hoàn chỉnh dự án với các mục tiêu đề ra. Đảm bảo hoạt động tốt.
 
